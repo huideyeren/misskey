@@ -12,6 +12,11 @@
 
 -->
 
+## 2024.3.1-inokashiraskey.2
+
+- Fix: GitHub Actionsでmainブランチとinokashiraskeyブランチへのプッシュ時にテストが走っていない不具合を修正
+- Fix: GitHub ActionsでE2Eテストが全く行われていなかった不具合を修正
+
 ## 2024.3.1-inokashiraskey.1
 
 2024.3.1-kinel.1と全く同一です
