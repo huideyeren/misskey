@@ -5,6 +5,8 @@ on:
     branches:
       - master
       - develop
+      - main
+      - inokashiraskey
       - dev/storybook8 # for testing
   pull_request_target:
 
