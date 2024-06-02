@@ -75,6 +75,8 @@ export const defaultStore = markRaw(new Storage('base', {
 			local: false,
 			social: false,
 			global: false,
+			'vmimi-relay': false,
+			'vmimi-relay-social': false,
 		},
 	},
 	keepCw: {
@@ -115,7 +117,7 @@ export const defaultStore = markRaw(new Storage('base', {
 	},
 	imageCompressionMode: {
 		where: 'account',
-		default: 'resizeCompress' as 'resizeCompress' | 'noResizeCompress' | 'resizeCompressLossy' | 'noResizeCompressLossy' | null,
+		default: 'resizeCompress' as 'resizeCompress' | 'noResizeCompress' | 'resizeCompressLossy' | 'noResizeCompressLossy',
 	},
 	memo: {
 		where: 'account',
@@ -188,7 +190,7 @@ export const defaultStore = markRaw(new Storage('base', {
 	tl: {
 		where: 'deviceAccount',
 		default: {
-			src: 'home' as 'home' | 'local' | 'social' | 'global' | `list:${string}`,
+			src: 'home' as 'home' | 'local' | 'social' | 'global' | 'vmimi-relay' | 'vmimi-relay-social' | `list:${string}`,
 			userList: null as Misskey.entities.UserList | null,
 			filter: {
 				withReplies: true,

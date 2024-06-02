@@ -25,7 +25,7 @@ const inputCompressKindMap = {
 	'image/svg+xml': 'lossless',
 } as const;
 
-const resizeSizeConfig = { maxWidth: 2048, maxHeight: 2048 } as const;
+const resizeSizeConfig = { maxWidth: 2560, maxHeight: 2560 } as const;
 const noResizeSizeConfig = { maxWidth: Number.MAX_SAFE_INTEGER, maxHeight: Number.MAX_SAFE_INTEGER } as const;
 
 async function isLosslessWebp(file: Blob): Promise<boolean> {
@@ -60,29 +60,8 @@ export async function getCompressionConfig(file: File): Promise<BrowserImageResi
 	const inputCompressKind = await inputImageKind(file);
 	if (!inputCompressKind) return undefined;
 
-	let compressKind: 'lossy' | 'lossless';
-	let resize: boolean;
-
-	switch (defaultStore.state.imageCompressionMode) {
-		case 'resizeCompress':
-		case null:
-		default:
-			resize = true;
-			compressKind = inputCompressKind;
-			break;
-		case 'noResizeCompress':
-			resize = false;
-			compressKind = inputCompressKind;
-			break;
-		case 'resizeCompressLossy':
-			resize = true;
-			compressKind = 'lossy';
-			break;
-		case 'noResizeCompressLossy':
-			resize = false;
-			compressKind = 'lossy';
-			break;
-	}
+	const resize = defaultStore.state.imageCompressionMode.startsWith('resize');
+	const compressKind = defaultStore.state.imageCompressionMode.endsWith('CompressLossy') ? 'lossy' : inputCompressKind;
 
 	const webpSupported = isWebpSupported();
 

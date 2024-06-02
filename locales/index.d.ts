@@ -5335,6 +5335,14 @@ export interface Locale extends ILocale {
          * グローバルタイムラインでは、接続している他のすべてのサーバーからの投稿を見られます。
          */
         "global": string;
+        /**
+         * ぶいみみリレータイムラインでは、バーチャルケモミミリレーサーバーに参加しているサーバーのユーザー全員の投稿を見られます。
+         */
+        "vmimi-relay": string;
+        /**
+         * ぶいみみソーシャルタイムラインには、ホームタイムラインとぶいみみリレータイムラインの投稿が両方表示されます。
+         */
+        "vmimi-relay-social": string;
     };
     "_serverRules": {
         /**
@@ -6458,6 +6466,10 @@ export interface Locale extends ILocale {
              * ローカルタイムラインの閲覧
              */
             "ltlAvailable": string;
+            /**
+             * ぶいみみリレータイムラインの閲覧
+             */
+            "vrtlAvailable": string;
             /**
              * パブリック投稿の許可
              */
@@ -8597,6 +8609,14 @@ export interface Locale extends ILocale {
          * グローバル
          */
         "global": string;
+        /**
+         * ぶいみみリレー
+         */
+        "vmimiRelay": string;
+        /**
+         * ぶいみみソーシャル
+         */
+        "vmimiRelaySocial": string;
     };
     "_play": {
         /**
@@ -9238,25 +9258,25 @@ export interface Locale extends ILocale {
          */
         "title": string;
         /**
-         * オリジナル画像を保持しない場合に、Web公開用画像の圧縮形式を選択できます。縮小する場合は2048x2048より小さくなるように縮小されます。非可逆圧縮を指定しない場合は、元画像に応じて非可逆圧縮か可逆圧縮かが自動的に選択されます。
+         * オリジナル画像を保持しない場合に、Web公開用画像の圧縮形式を選択できます。
          */
         "description": string;
         /**
-         * 縮小して再圧縮する
+         * 画像を縮小する
          */
-        "resizeCompress": string;
+        "imageResize": string;
         /**
-         * 縮小せず再圧縮する
+         * 縮小する場合は2560x2560以下になるように縮小されます。
          */
-        "noResizeCompress": string;
+        "imageResizeDescription": string;
         /**
-         * 縮小して非可逆圧縮する
+         * 画像を常に非可逆圧縮する
          */
-        "resizeCompressLossy": string;
+        "imageCompressionLossy": string;
         /**
-         * 縮小せず非可逆圧縮する
+         * 非可逆圧縮を指定しない場合は、元画像に応じて非可逆圧縮か可逆圧縮かが自動的に選択されます。
          */
-        "noResizeCompressLossy": string;
+        "imageCompressionLossyDescription": string;
     };
     "_moderationLogTypes": {
         /**
