@@ -151,6 +151,13 @@ export const paramDef = {
 				type: 'string',
 			},
 		},
+		mediaSilencedHosts: {
+			type: 'array',
+			nullable: true,
+			items: {
+				type: 'string',
+			},
+		},
 		summalyProxy: {
 			type: 'string', nullable: true,
 			description: '[Deprecated] Use "urlPreviewSummaryProxyUrl" instead.',
@@ -161,6 +168,15 @@ export const paramDef = {
 		urlPreviewRequireContentLength: { type: 'boolean' },
 		urlPreviewUserAgent: { type: 'string', nullable: true },
 		urlPreviewSummaryProxyUrl: { type: 'string', nullable: true },
+		nirilaBlockMentionsFromUnfamiliarRemoteUsers: { type: 'boolean', nullable: false },
+		nirilaAllowedUnfamiliarRemoteUserIds: {
+			type: 'array',
+			nullable: false,
+			items: {
+				type: 'string',
+				nullable: false,
+			},
+		}
 	},
 	required: [],
 } as const;
@@ -199,6 +215,14 @@ export default class extends Endpoint<typeof meta, typeof paramDef> { // eslint-
 			if (Array.isArray(ps.silencedHosts)) {
 				let lastValue = '';
 				set.silencedHosts = ps.silencedHosts.sort().filter((h) => {
+					const lv = lastValue;
+					lastValue = h;
+					return h !== '' && h !== lv && !set.blockedHosts?.includes(h);
+				});
+			}
+			if (Array.isArray(ps.mediaSilencedHosts)) {
+				let lastValue = '';
+				set.mediaSilencedHosts = ps.mediaSilencedHosts.sort().filter((h) => {
 					const lv = lastValue;
 					lastValue = h;
 					return h !== '' && h !== lv && !set.blockedHosts?.includes(h);
@@ -620,6 +644,14 @@ export default class extends Endpoint<typeof meta, typeof paramDef> { // eslint-
 			if (ps.summalyProxy !== undefined || ps.urlPreviewSummaryProxyUrl !== undefined) {
 				const value = ((ps.urlPreviewSummaryProxyUrl ?? ps.summalyProxy) ?? '').trim();
 				set.urlPreviewSummaryProxyUrl = value === '' ? null : value;
+			}
+
+			if (ps.nirilaBlockMentionsFromUnfamiliarRemoteUsers !== undefined) {
+				set.nirilaBlockMentionsFromUnfamiliarRemoteUsers = ps.nirilaBlockMentionsFromUnfamiliarRemoteUsers;
+			}
+
+			if (ps.nirilaAllowedUnfamiliarRemoteUserIds !== undefined) {
+				set.nirilaAllowedUnfamiliarRemoteUserIds = ps.nirilaAllowedUnfamiliarRemoteUserIds;
 			}
 
 			const before = await this.metaService.fetch(true);
