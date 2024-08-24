@@ -116,7 +116,7 @@ export const defaultStore = markRaw(new Storage('base', {
 	},
 	imageCompressionMode: {
 		where: 'account',
-		default: 'resizeCompress' as 'resizeCompress' | 'noResizeCompress' | 'resizeCompressLossy' | 'noResizeCompressLossy',
+		default: 'noResizeCompress' as 'resizeCompress' | 'noResizeCompress' | 'resizeCompressLossy' | 'noResizeCompressLossy',
 	},
 	imageResizeSize: {
 		where: 'account',
@@ -193,7 +193,7 @@ export const defaultStore = markRaw(new Storage('base', {
 	tl: {
 		where: 'deviceAccount',
 		default: {
-			src: 'home' as 'home' | 'local' | 'social' | 'global' | 'vmimi-relay' | 'vmimi-relay-social' | `list:${string}`,
+			src: 'social' as 'home' | 'local' | 'social' | 'global' | 'vmimi-relay' | 'vmimi-relay-social' | `list:${string}`,
 			userList: null as Misskey.entities.UserList | null,
 			filter: {
 				withReplies: true,
@@ -419,7 +419,7 @@ export const defaultStore = markRaw(new Storage('base', {
 	},
 	defaultWithReplies: {
 		where: 'account',
-		default: false,
+		default: true,
 	},
 	disableStreamingTimeline: {
 		where: 'device',
@@ -469,6 +469,14 @@ export const defaultStore = markRaw(new Storage('base', {
 		where: 'device',
 		default: true,
 	},
+	confirmWhenRevealingSensitiveMedia: {
+		where: 'device',
+		default: false,
+	},
+  contextMenu: {
+		where: 'device',
+		default: 'app' as 'app' | 'appWithShift' | 'native',
+  },
 
 	sound_masterVolume: {
 		where: 'device',
@@ -493,14 +501,6 @@ export const defaultStore = markRaw(new Storage('base', {
 	sound_notification: {
 		where: 'device',
 		default: { type: 'syuilo/n-ea', volume: 1 } as SoundStore,
-	},
-	sound_antenna: {
-		where: 'device',
-		default: { type: 'syuilo/triple', volume: 1 } as SoundStore,
-	},
-	sound_channel: {
-		where: 'device',
-		default: { type: 'syuilo/square-pico', volume: 1 } as SoundStore,
 	},
 	sound_reaction: {
 		where: 'device',

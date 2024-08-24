@@ -87,6 +87,11 @@ export class MiMeta {
 	public silencedHosts: string[];
 
 	@Column('varchar', {
+		length: 1024, array: true, default: '{}',
+	})
+	public mediaSilencedHosts: string[];
+
+	@Column('varchar', {
 		length: 1024,
 		nullable: true,
 	})
@@ -625,4 +630,16 @@ export class MiMeta {
 		nullable: true,
 	})
 	public urlPreviewUserAgent: string | null;
+
+	@Column('boolean', {
+		default: false,
+	})
+	public nirilaBlockMentionsFromUnfamiliarRemoteUsers: boolean;
+
+	@Column('varchar', {
+		length: 32,
+		array: true,
+		default: '{}',
+	})
+	public nirilaAllowedUnfamiliarRemoteUserIds: string[];
 }

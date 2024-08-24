@@ -39,6 +39,56 @@ export type paths = {
      */
     post: operations['admin___abuse-user-reports'];
   };
+  '/admin/abuse-report/notification-recipient/list': {
+    /**
+     * admin/abuse-report/notification-recipient/list
+     * @description No description provided.
+     *
+     * **Internal Endpoint**: This endpoint is an API for the misskey mainframe and is not intended for use by third parties.
+     * **Credential required**: *Yes* / **Permission**: *read:admin:abuse-report:notification-recipient*
+     */
+    post: operations['admin___abuse-report___notification-recipient___list'];
+  };
+  '/admin/abuse-report/notification-recipient/show': {
+    /**
+     * admin/abuse-report/notification-recipient/show
+     * @description No description provided.
+     *
+     * **Internal Endpoint**: This endpoint is an API for the misskey mainframe and is not intended for use by third parties.
+     * **Credential required**: *Yes* / **Permission**: *read:admin:abuse-report:notification-recipient*
+     */
+    post: operations['admin___abuse-report___notification-recipient___show'];
+  };
+  '/admin/abuse-report/notification-recipient/create': {
+    /**
+     * admin/abuse-report/notification-recipient/create
+     * @description No description provided.
+     *
+     * **Internal Endpoint**: This endpoint is an API for the misskey mainframe and is not intended for use by third parties.
+     * **Credential required**: *Yes* / **Permission**: *write:admin:abuse-report:notification-recipient*
+     */
+    post: operations['admin___abuse-report___notification-recipient___create'];
+  };
+  '/admin/abuse-report/notification-recipient/update': {
+    /**
+     * admin/abuse-report/notification-recipient/update
+     * @description No description provided.
+     *
+     * **Internal Endpoint**: This endpoint is an API for the misskey mainframe and is not intended for use by third parties.
+     * **Credential required**: *Yes* / **Permission**: *write:admin:abuse-report:notification-recipient*
+     */
+    post: operations['admin___abuse-report___notification-recipient___update'];
+  };
+  '/admin/abuse-report/notification-recipient/delete': {
+    /**
+     * admin/abuse-report/notification-recipient/delete
+     * @description No description provided.
+     *
+     * **Internal Endpoint**: This endpoint is an API for the misskey mainframe and is not intended for use by third parties.
+     * **Credential required**: *Yes* / **Permission**: *write:admin:abuse-report:notification-recipient*
+     */
+    post: operations['admin___abuse-report___notification-recipient___delete'];
+  };
   '/admin/accounts/create': {
     /**
      * admin/accounts/create
@@ -714,6 +764,56 @@ export type paths = {
      * **Credential required**: *No* / **Permission**: *read:admin:roles*
      */
     post: operations['admin___roles___users'];
+  };
+  '/admin/system-webhook/create': {
+    /**
+     * admin/system-webhook/create
+     * @description No description provided.
+     *
+     * **Internal Endpoint**: This endpoint is an API for the misskey mainframe and is not intended for use by third parties.
+     * **Credential required**: *Yes* / **Permission**: *write:admin:system-webhook*
+     */
+    post: operations['admin___system-webhook___create'];
+  };
+  '/admin/system-webhook/delete': {
+    /**
+     * admin/system-webhook/delete
+     * @description No description provided.
+     *
+     * **Internal Endpoint**: This endpoint is an API for the misskey mainframe and is not intended for use by third parties.
+     * **Credential required**: *Yes* / **Permission**: *write:admin:system-webhook*
+     */
+    post: operations['admin___system-webhook___delete'];
+  };
+  '/admin/system-webhook/list': {
+    /**
+     * admin/system-webhook/list
+     * @description No description provided.
+     *
+     * **Internal Endpoint**: This endpoint is an API for the misskey mainframe and is not intended for use by third parties.
+     * **Credential required**: *Yes* / **Permission**: *write:admin:system-webhook*
+     */
+    post: operations['admin___system-webhook___list'];
+  };
+  '/admin/system-webhook/show': {
+    /**
+     * admin/system-webhook/show
+     * @description No description provided.
+     *
+     * **Internal Endpoint**: This endpoint is an API for the misskey mainframe and is not intended for use by third parties.
+     * **Credential required**: *Yes* / **Permission**: *write:admin:system-webhook*
+     */
+    post: operations['admin___system-webhook___show'];
+  };
+  '/admin/system-webhook/update': {
+    /**
+     * admin/system-webhook/update
+     * @description No description provided.
+     *
+     * **Internal Endpoint**: This endpoint is an API for the misskey mainframe and is not intended for use by third parties.
+     * **Credential required**: *Yes* / **Permission**: *write:admin:system-webhook*
+     */
+    post: operations['admin___system-webhook___update'];
   };
   '/announcements': {
     /**
@@ -4025,7 +4125,8 @@ export type components = {
         userId: string | null;
       }) | null;
       localOnly?: boolean;
-      reactionAcceptance: string | null;
+      /** @enum {string|null} */
+      reactionAcceptance: 'likeOnly' | 'likeOnlyForRemote' | 'nonSensitiveOnly' | 'nonSensitiveOnlyForLocalLikeOnlyForRemote' | null;
       reactionEmojis: {
         [key: string]: string;
       };
@@ -4235,7 +4336,7 @@ export type components = {
       id: string;
       /** Format: date-time */
       createdAt: string;
-      /** @example lenna.jpg */
+      /** @example 192.jpg */
       name: string;
       /** @example image/jpeg */
       type: string;
@@ -4536,6 +4637,7 @@ export type components = {
       maintainerName: string | null;
       maintainerEmail: string | null;
       isSilenced: boolean;
+      isMediaSilenced: boolean;
       /** Format: url */
       iconUrl: string | null;
       /** Format: url */
@@ -4608,6 +4710,8 @@ export type components = {
       title: string;
       summary: string;
       script: string;
+      /** @enum {string} */
+      visibility: 'private' | 'public';
       likedCount: number | null;
       isLiked?: boolean;
     };
@@ -4725,6 +4829,7 @@ export type components = {
       canHideAds: boolean;
       driveCapacityMb: number;
       alwaysMarkNsfw: boolean;
+      canUpdateBioMedia: boolean;
       pinLimit: number;
       antennaLimit: number;
       wordMuteLimit: number;
@@ -4876,6 +4981,11 @@ export type components = {
       serverRules: string[];
       themeColor: string | null;
       policies: components['schemas']['RolePolicies'];
+      /**
+       * @default local
+       * @enum {string}
+       */
+      noteSearchableScope: 'local' | 'global';
     };
     MetaDetailedOnly: {
       features?: {
@@ -4899,6 +5009,32 @@ export type components = {
       cacheRemoteSensitiveFiles: boolean;
     };
     MetaDetailed: components['schemas']['MetaLite'] & components['schemas']['MetaDetailedOnly'];
+    SystemWebhook: {
+      id: string;
+      isActive: boolean;
+      /** Format: date-time */
+      updatedAt: string;
+      /** Format: date-time */
+      latestSentAt: string | null;
+      latestStatus: number | null;
+      name: string;
+      on: ('abuseReport' | 'abuseReportResolved' | 'userCreated')[];
+      url: string;
+      secret: string;
+    };
+    AbuseReportNotificationRecipient: {
+      id: string;
+      isActive: boolean;
+      /** Format: date-time */
+      updatedAt: string;
+      name: string;
+      /** @enum {string} */
+      method: 'email' | 'webhook';
+      userId?: string;
+      user?: components['schemas']['UserLite'];
+      systemWebhookId?: string;
+      systemWebhook?: components['schemas']['SystemWebhook'];
+    };
   };
   responses: never;
   parameters: never;
@@ -5013,6 +5149,7 @@ export type operations = {
             enableServiceWorker: boolean;
             translatorAvailable: boolean;
             silencedHosts?: string[];
+            mediaSilencedHosts: string[];
             pinnedUsers: string[];
             hiddenTags: string[];
             blockedHosts: string[];
@@ -5100,6 +5237,8 @@ export type operations = {
             urlPreviewRequireContentLength: boolean;
             urlPreviewUserAgent: string | null;
             urlPreviewSummaryProxyUrl: string | null;
+            nirilaBlockMentionsFromUnfamiliarRemoteUsers: boolean;
+            nirilaAllowedUnfamiliarRemoteUserIds: string[];
           };
         };
       };
@@ -5194,6 +5333,292 @@ export type operations = {
               assignee?: components['schemas']['UserDetailedNotMe'] | null;
             })[];
         };
+      };
+      /** @description Client error */
+      400: {
+        content: {
+          'application/json': components['schemas']['Error'];
+        };
+      };
+      /** @description Authentication error */
+      401: {
+        content: {
+          'application/json': components['schemas']['Error'];
+        };
+      };
+      /** @description Forbidden error */
+      403: {
+        content: {
+          'application/json': components['schemas']['Error'];
+        };
+      };
+      /** @description I'm Ai */
+      418: {
+        content: {
+          'application/json': components['schemas']['Error'];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        content: {
+          'application/json': components['schemas']['Error'];
+        };
+      };
+    };
+  };
+  /**
+   * admin/abuse-report/notification-recipient/list
+   * @description No description provided.
+   *
+   * **Internal Endpoint**: This endpoint is an API for the misskey mainframe and is not intended for use by third parties.
+   * **Credential required**: *Yes* / **Permission**: *read:admin:abuse-report:notification-recipient*
+   */
+  'admin___abuse-report___notification-recipient___list': {
+    requestBody: {
+      content: {
+        'application/json': {
+          method?: ('email' | 'webhook')[];
+        };
+      };
+    };
+    responses: {
+      /** @description OK (with results) */
+      200: {
+        content: {
+          'application/json': components['schemas']['AbuseReportNotificationRecipient'][];
+        };
+      };
+      /** @description Client error */
+      400: {
+        content: {
+          'application/json': components['schemas']['Error'];
+        };
+      };
+      /** @description Authentication error */
+      401: {
+        content: {
+          'application/json': components['schemas']['Error'];
+        };
+      };
+      /** @description Forbidden error */
+      403: {
+        content: {
+          'application/json': components['schemas']['Error'];
+        };
+      };
+      /** @description I'm Ai */
+      418: {
+        content: {
+          'application/json': components['schemas']['Error'];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        content: {
+          'application/json': components['schemas']['Error'];
+        };
+      };
+    };
+  };
+  /**
+   * admin/abuse-report/notification-recipient/show
+   * @description No description provided.
+   *
+   * **Internal Endpoint**: This endpoint is an API for the misskey mainframe and is not intended for use by third parties.
+   * **Credential required**: *Yes* / **Permission**: *read:admin:abuse-report:notification-recipient*
+   */
+  'admin___abuse-report___notification-recipient___show': {
+    requestBody: {
+      content: {
+        'application/json': {
+          /** Format: misskey:id */
+          id: string;
+        };
+      };
+    };
+    responses: {
+      /** @description OK (with results) */
+      200: {
+        content: {
+          'application/json': components['schemas']['AbuseReportNotificationRecipient'];
+        };
+      };
+      /** @description Client error */
+      400: {
+        content: {
+          'application/json': components['schemas']['Error'];
+        };
+      };
+      /** @description Authentication error */
+      401: {
+        content: {
+          'application/json': components['schemas']['Error'];
+        };
+      };
+      /** @description Forbidden error */
+      403: {
+        content: {
+          'application/json': components['schemas']['Error'];
+        };
+      };
+      /** @description I'm Ai */
+      418: {
+        content: {
+          'application/json': components['schemas']['Error'];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        content: {
+          'application/json': components['schemas']['Error'];
+        };
+      };
+    };
+  };
+  /**
+   * admin/abuse-report/notification-recipient/create
+   * @description No description provided.
+   *
+   * **Internal Endpoint**: This endpoint is an API for the misskey mainframe and is not intended for use by third parties.
+   * **Credential required**: *Yes* / **Permission**: *write:admin:abuse-report:notification-recipient*
+   */
+  'admin___abuse-report___notification-recipient___create': {
+    requestBody: {
+      content: {
+        'application/json': {
+          isActive: boolean;
+          name: string;
+          /** @enum {string} */
+          method: 'email' | 'webhook';
+          /** Format: misskey:id */
+          userId?: string;
+          /** Format: misskey:id */
+          systemWebhookId?: string;
+        };
+      };
+    };
+    responses: {
+      /** @description OK (with results) */
+      200: {
+        content: {
+          'application/json': components['schemas']['AbuseReportNotificationRecipient'];
+        };
+      };
+      /** @description Client error */
+      400: {
+        content: {
+          'application/json': components['schemas']['Error'];
+        };
+      };
+      /** @description Authentication error */
+      401: {
+        content: {
+          'application/json': components['schemas']['Error'];
+        };
+      };
+      /** @description Forbidden error */
+      403: {
+        content: {
+          'application/json': components['schemas']['Error'];
+        };
+      };
+      /** @description I'm Ai */
+      418: {
+        content: {
+          'application/json': components['schemas']['Error'];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        content: {
+          'application/json': components['schemas']['Error'];
+        };
+      };
+    };
+  };
+  /**
+   * admin/abuse-report/notification-recipient/update
+   * @description No description provided.
+   *
+   * **Internal Endpoint**: This endpoint is an API for the misskey mainframe and is not intended for use by third parties.
+   * **Credential required**: *Yes* / **Permission**: *write:admin:abuse-report:notification-recipient*
+   */
+  'admin___abuse-report___notification-recipient___update': {
+    requestBody: {
+      content: {
+        'application/json': {
+          /** Format: misskey:id */
+          id: string;
+          isActive: boolean;
+          name: string;
+          /** @enum {string} */
+          method: 'email' | 'webhook';
+          /** Format: misskey:id */
+          userId?: string;
+          /** Format: misskey:id */
+          systemWebhookId?: string;
+        };
+      };
+    };
+    responses: {
+      /** @description OK (with results) */
+      200: {
+        content: {
+          'application/json': components['schemas']['AbuseReportNotificationRecipient'];
+        };
+      };
+      /** @description Client error */
+      400: {
+        content: {
+          'application/json': components['schemas']['Error'];
+        };
+      };
+      /** @description Authentication error */
+      401: {
+        content: {
+          'application/json': components['schemas']['Error'];
+        };
+      };
+      /** @description Forbidden error */
+      403: {
+        content: {
+          'application/json': components['schemas']['Error'];
+        };
+      };
+      /** @description I'm Ai */
+      418: {
+        content: {
+          'application/json': components['schemas']['Error'];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        content: {
+          'application/json': components['schemas']['Error'];
+        };
+      };
+    };
+  };
+  /**
+   * admin/abuse-report/notification-recipient/delete
+   * @description No description provided.
+   *
+   * **Internal Endpoint**: This endpoint is an API for the misskey mainframe and is not intended for use by third parties.
+   * **Credential required**: *Yes* / **Permission**: *write:admin:abuse-report:notification-recipient*
+   */
+  'admin___abuse-report___notification-recipient___delete': {
+    requestBody: {
+      content: {
+        'application/json': {
+          /** Format: misskey:id */
+          id: string;
+        };
+      };
+    };
+    responses: {
+      /** @description OK (without any results) */
+      204: {
+        content: never;
       };
       /** @description Client error */
       400: {
@@ -5571,15 +5996,15 @@ export type operations = {
         'application/json': {
           /** Format: misskey:id */
           id: string;
-          memo: string;
-          url: string;
-          imageUrl: string;
-          place: string;
-          priority: string;
-          ratio: number;
-          expiresAt: number;
-          startsAt: number;
-          dayOfWeek: number;
+          memo?: string;
+          url?: string;
+          imageUrl?: string;
+          place?: string;
+          priority?: string;
+          ratio?: number;
+          expiresAt?: number;
+          startsAt?: number;
+          dayOfWeek?: number;
         };
       };
     };
@@ -5779,6 +6204,11 @@ export type operations = {
           untilId?: string;
           /** Format: misskey:id */
           userId?: string | null;
+          /**
+           * @default active
+           * @enum {string}
+           */
+          status?: 'all' | 'active' | 'archived';
         };
       };
     };
@@ -6489,7 +6919,7 @@ export type operations = {
              * @example 15eca7fba0480996e2245f5185bf39f2
              */
             md5: string;
-            /** @example lenna.jpg */
+            /** @example 192.jpg */
             name: string;
             /** @example image/jpeg */
             type: string;
@@ -9102,6 +9532,7 @@ export type operations = {
           perUserListTimelineCacheMax?: number;
           notesPerOneAd?: number;
           silencedHosts?: string[] | null;
+          mediaSilencedHosts?: string[] | null;
           /** @description [Deprecated] Use "urlPreviewSummaryProxyUrl" instead. */
           summalyProxy?: string | null;
           urlPreviewEnabled?: boolean;
@@ -9110,6 +9541,8 @@ export type operations = {
           urlPreviewRequireContentLength?: boolean;
           urlPreviewUserAgent?: string | null;
           urlPreviewSummaryProxyUrl?: string | null;
+          nirilaBlockMentionsFromUnfamiliarRemoteUsers?: boolean;
+          nirilaAllowedUnfamiliarRemoteUserIds?: string[];
         };
       };
     };
@@ -9487,21 +9920,21 @@ export type operations = {
         'application/json': {
           /** Format: misskey:id */
           roleId: string;
-          name: string;
-          description: string;
-          color: string | null;
-          iconUrl: string | null;
+          name?: string;
+          description?: string;
+          color?: string | null;
+          iconUrl?: string | null;
           /** @enum {string} */
-          target: 'manual' | 'conditional';
-          condFormula: Record<string, never>;
-          isPublic: boolean;
-          isModerator: boolean;
-          isAdministrator: boolean;
+          target?: 'manual' | 'conditional';
+          condFormula?: Record<string, never>;
+          isPublic?: boolean;
+          isModerator?: boolean;
+          isAdministrator?: boolean;
           isExplorable?: boolean;
-          asBadge: boolean;
-          canEditMembersByModerator: boolean;
-          displayOrder: number;
-          policies: Record<string, never>;
+          asBadge?: boolean;
+          canEditMembersByModerator?: boolean;
+          displayOrder?: number;
+          policies?: Record<string, never>;
         };
       };
     };
@@ -9736,6 +10169,287 @@ export type operations = {
               /** Format: date-time */
               expiresAt: string | null;
             })[];
+        };
+      };
+      /** @description Client error */
+      400: {
+        content: {
+          'application/json': components['schemas']['Error'];
+        };
+      };
+      /** @description Authentication error */
+      401: {
+        content: {
+          'application/json': components['schemas']['Error'];
+        };
+      };
+      /** @description Forbidden error */
+      403: {
+        content: {
+          'application/json': components['schemas']['Error'];
+        };
+      };
+      /** @description I'm Ai */
+      418: {
+        content: {
+          'application/json': components['schemas']['Error'];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        content: {
+          'application/json': components['schemas']['Error'];
+        };
+      };
+    };
+  };
+  /**
+   * admin/system-webhook/create
+   * @description No description provided.
+   *
+   * **Internal Endpoint**: This endpoint is an API for the misskey mainframe and is not intended for use by third parties.
+   * **Credential required**: *Yes* / **Permission**: *write:admin:system-webhook*
+   */
+  'admin___system-webhook___create': {
+    requestBody: {
+      content: {
+        'application/json': {
+          isActive: boolean;
+          name: string;
+          on: ('abuseReport' | 'abuseReportResolved' | 'userCreated')[];
+          url: string;
+          secret: string;
+        };
+      };
+    };
+    responses: {
+      /** @description OK (with results) */
+      200: {
+        content: {
+          'application/json': components['schemas']['SystemWebhook'];
+        };
+      };
+      /** @description Client error */
+      400: {
+        content: {
+          'application/json': components['schemas']['Error'];
+        };
+      };
+      /** @description Authentication error */
+      401: {
+        content: {
+          'application/json': components['schemas']['Error'];
+        };
+      };
+      /** @description Forbidden error */
+      403: {
+        content: {
+          'application/json': components['schemas']['Error'];
+        };
+      };
+      /** @description I'm Ai */
+      418: {
+        content: {
+          'application/json': components['schemas']['Error'];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        content: {
+          'application/json': components['schemas']['Error'];
+        };
+      };
+    };
+  };
+  /**
+   * admin/system-webhook/delete
+   * @description No description provided.
+   *
+   * **Internal Endpoint**: This endpoint is an API for the misskey mainframe and is not intended for use by third parties.
+   * **Credential required**: *Yes* / **Permission**: *write:admin:system-webhook*
+   */
+  'admin___system-webhook___delete': {
+    requestBody: {
+      content: {
+        'application/json': {
+          /** Format: misskey:id */
+          id: string;
+        };
+      };
+    };
+    responses: {
+      /** @description OK (without any results) */
+      204: {
+        content: never;
+      };
+      /** @description Client error */
+      400: {
+        content: {
+          'application/json': components['schemas']['Error'];
+        };
+      };
+      /** @description Authentication error */
+      401: {
+        content: {
+          'application/json': components['schemas']['Error'];
+        };
+      };
+      /** @description Forbidden error */
+      403: {
+        content: {
+          'application/json': components['schemas']['Error'];
+        };
+      };
+      /** @description I'm Ai */
+      418: {
+        content: {
+          'application/json': components['schemas']['Error'];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        content: {
+          'application/json': components['schemas']['Error'];
+        };
+      };
+    };
+  };
+  /**
+   * admin/system-webhook/list
+   * @description No description provided.
+   *
+   * **Internal Endpoint**: This endpoint is an API for the misskey mainframe and is not intended for use by third parties.
+   * **Credential required**: *Yes* / **Permission**: *write:admin:system-webhook*
+   */
+  'admin___system-webhook___list': {
+    requestBody: {
+      content: {
+        'application/json': {
+          isActive?: boolean;
+          on?: ('abuseReport' | 'abuseReportResolved' | 'userCreated')[];
+        };
+      };
+    };
+    responses: {
+      /** @description OK (with results) */
+      200: {
+        content: {
+          'application/json': components['schemas']['SystemWebhook'][];
+        };
+      };
+      /** @description Client error */
+      400: {
+        content: {
+          'application/json': components['schemas']['Error'];
+        };
+      };
+      /** @description Authentication error */
+      401: {
+        content: {
+          'application/json': components['schemas']['Error'];
+        };
+      };
+      /** @description Forbidden error */
+      403: {
+        content: {
+          'application/json': components['schemas']['Error'];
+        };
+      };
+      /** @description I'm Ai */
+      418: {
+        content: {
+          'application/json': components['schemas']['Error'];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        content: {
+          'application/json': components['schemas']['Error'];
+        };
+      };
+    };
+  };
+  /**
+   * admin/system-webhook/show
+   * @description No description provided.
+   *
+   * **Internal Endpoint**: This endpoint is an API for the misskey mainframe and is not intended for use by third parties.
+   * **Credential required**: *Yes* / **Permission**: *write:admin:system-webhook*
+   */
+  'admin___system-webhook___show': {
+    requestBody: {
+      content: {
+        'application/json': {
+          /** Format: misskey:id */
+          id: string;
+        };
+      };
+    };
+    responses: {
+      /** @description OK (with results) */
+      200: {
+        content: {
+          'application/json': components['schemas']['SystemWebhook'];
+        };
+      };
+      /** @description Client error */
+      400: {
+        content: {
+          'application/json': components['schemas']['Error'];
+        };
+      };
+      /** @description Authentication error */
+      401: {
+        content: {
+          'application/json': components['schemas']['Error'];
+        };
+      };
+      /** @description Forbidden error */
+      403: {
+        content: {
+          'application/json': components['schemas']['Error'];
+        };
+      };
+      /** @description I'm Ai */
+      418: {
+        content: {
+          'application/json': components['schemas']['Error'];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        content: {
+          'application/json': components['schemas']['Error'];
+        };
+      };
+    };
+  };
+  /**
+   * admin/system-webhook/update
+   * @description No description provided.
+   *
+   * **Internal Endpoint**: This endpoint is an API for the misskey mainframe and is not intended for use by third parties.
+   * **Credential required**: *Yes* / **Permission**: *write:admin:system-webhook*
+   */
+  'admin___system-webhook___update': {
+    requestBody: {
+      content: {
+        'application/json': {
+          /** Format: misskey:id */
+          id: string;
+          isActive: boolean;
+          name: string;
+          on: ('abuseReport' | 'abuseReportResolved' | 'userCreated')[];
+          url: string;
+          secret: string;
+        };
+      };
+    };
+    responses: {
+      /** @description OK (with results) */
+      200: {
+        content: {
+          'application/json': components['schemas']['SystemWebhook'];
         };
       };
       /** @description Client error */
@@ -12862,7 +13576,7 @@ export type operations = {
         'application/json': {
           /** Format: misskey:id */
           clipId: string;
-          name: string;
+          name?: string;
           isPublic?: boolean;
           description?: string | null;
         };
@@ -13312,7 +14026,7 @@ export type operations = {
            * Format: binary
            * @description The file contents.
            */
-          file: string;
+          file: Blob;
         };
       };
     };
@@ -15709,9 +16423,9 @@ export type operations = {
         'application/json': {
           /** Format: misskey:id */
           postId: string;
-          title: string;
+          title?: string;
           description?: string | null;
-          fileIds: string[];
+          fileIds?: string[];
           /** @default false */
           isSensitive?: boolean;
         };
@@ -19492,12 +20206,11 @@ export type operations = {
         'application/json': {
           /** Format: misskey:id */
           webhookId: string;
-          name: string;
-          url: string;
-          /** @default */
-          secret?: string;
-          on: (('mention' | 'unfollow' | 'follow' | 'followed' | 'note' | 'reply' | 'renote' | 'reaction') | string)[];
-          active: boolean;
+          name?: string;
+          url?: string;
+          secret?: string | null;
+          on?: (('mention' | 'unfollow' | 'follow' | 'followed' | 'note' | 'reply' | 'renote' | 'reaction') | string)[];
+          active?: boolean;
         };
       };
     };
@@ -23006,16 +23719,16 @@ export type operations = {
         'application/json': {
           /** Format: misskey:id */
           pageId: string;
-          title: string;
-          name: string;
+          title?: string;
+          name?: string;
           summary?: string | null;
-          content: {
+          content?: {
               [key: string]: unknown;
             }[];
-          variables: {
+          variables?: {
               [key: string]: unknown;
             }[];
-          script: string;
+          script?: string;
           /** Format: misskey:id */
           eyeCatchingImageId?: string | null;
           /** @enum {string} */
