@@ -1,4 +1,38 @@
-user-agent: *
-allow: /
+# ChatGPT関連のクローラーをブロック
+User-agent: GPTBot
+Disallow: /
+User-agent: ChatGPT-User
+Disallow: /
 
+# ClaudeBot関連のクローラーをブロック
+User-agent: ClaudeBot
+Disallow: /
+
+# Google-Extendedを含むGoogleのクローラーをブロック
+User-agent: Google-Extended
+Disallow: /
+
+# Microsoftの生成AI（Copilotなど）のクローラーをブロック
+User-agent: Bingbot
+Disallow: /
+User-agent: BingPreview
+Disallow: /
+
+# Common Crawlのクローラーをブロック
+User-agent: CCBot
+Disallow: /
+
+# その他
+User-agent: anthropic-ai
+Disallow: /
+User-agent: Omgilibot
+Disallow: /
+User-agent: Omgili
+Disallow: /
+User-agent: FacebookBot
+Disallow: /
+
+# それ以外は許す
+User-agent: *
+Allow: /
 # todo: sitemap
