@@ -1,3 +1,108 @@
+## 2024.11.0-inokashiraskey.1
+
+### Note
+- CIはmainブランチでも動作します。
+
+## 2024.11.0-kinel.1 (merged to 2024.11.0-inokashiraskey.1)
+## 2024.11.0 (merged to 2024.11.0-kinel.1)
+
+### Note
+- Node.js 20.xは非推奨になりました。Node.js 22.x (LTS)の利用を推奨します。
+	- なお、Node.js 23.xは対応していません。
+- DockerのNode.jsが22.11.0に更新されました
+
+### General
+- Feat: コンテンツの表示にログインを必須にできるように
+- Feat: 過去のノートを非公開化/フォロワーのみ表示可能にできるように
+- Enhance: 依存関係の更新
+- Enhance: l10nの更新
+- Fix: お知らせ作成時に画像URL入力欄を空欄に変更できないのを修正 ( #14976 )
+
+### Client
+- Enhance: Bull DashboardでRelationship Queueの状態も確認できるように  
+	(Cherry-picked from https://github.com/MisskeyIO/misskey/pull/751)
+- Enhance: ドライブでソートができるように
+- Enhance: アイコンデコレーション管理画面の改善
+- Enhance: 「単なるラッキー」の取得条件を変更
+- Enhance: 投稿フォームでEscキーを押したときIME入力中ならフォームを閉じないように（ #10866 ）
+- Enhance: MiAuth, OAuthの認可画面の改善
+	- どのアカウントで認証しようとしているのかがわかるように
+	- 認証するアカウントを切り替えられるように
+- Enhance: Self-XSS防止用の警告を追加
+- Enhance: カタルーニャ語 (ca-ES) に対応
+- Enhance: 個別お知らせページではMetaタグを出力するように
+- Enhance: ノート詳細画面にロールのバッジを表示
+- Enhance: 過去に送信したフォローリクエストを確認できるように  
+	(Based on https://activitypub.software/TransFem-org/Sharkey/-/merge_requests/663)
+- Enhance: サイドバーを簡単に展開・折りたたみできるように ( #14981 )
+- Enhance: リノートメニューに「リノートの詳細」を追加
+- Enhance: 非ログイン状態でMisskeyを開いた際のパフォーマンスを向上
+- Fix: 通知の範囲指定の設定項目が必要ない通知設定でも範囲指定の設定がでている問題を修正
+- Fix: Turnstileが失敗・期限切れした際にも成功扱いとなってしまう問題を修正  
+	(Cherry-picked from https://github.com/MisskeyIO/misskey/pull/768)
+- Fix: デッキのタイムラインカラムで「センシティブなファイルを含むノートを表示」設定が使用できなかった問題を修正
+- Fix: Encode RSS urls with escape sequences before fetching allowing query parameters to be used
+- Fix: リンク切れを修正
+	= Fix: ノート投稿ボタンにホバー時のスタイルが適用されていないのを修正  
+	(Cherry-picked from https://github.com/taiyme/misskey/pull/305)
+- Fix: メールアドレス登録有効化時の「完了」ダイアログボックスの表示条件を修正
+- Fix: 画面幅が狭い環境でデザインが崩れる問題を修正  
+	(Cherry-picked from https://github.com/MisskeyIO/misskey/pull/815)
+- Fix: TypeScriptの型チェック対象ファイルを限定してビルドを高速化するように  
+	(Cherry-picked from https://activitypub.software/TransFem-org/Sharkey/-/merge_requests/725)
+
+### Server
+- Enhance: DockerのNode.jsを22.11.0に更新
+- Enhance: 起動前の疎通チェックで、DBとメイン以外のRedisの疎通確認も行うように  
+	(Based on https://activitypub.software/TransFem-org/Sharkey/-/merge_requests/588)  
+	(Cherry-picked from https://activitypub.software/TransFem-org/Sharkey/-/merge_requests/715)
+- Enhance: リモートユーザーの照会をオリジナルにリダイレクトするように
+- Fix: sharedInboxが無いActorに紐づくリモートユーザーを照会できない
+- Fix: Aproving request from GtS appears with some delay
+- Fix: フォロワーへのメッセージの絵文字をemojisに含めるように
+- Fix: Nested proxy requestsを検出した際にブロックするように
+	[ghsa-gq5q-c77c-v236](https://github.com/misskey-dev/misskey/security/advisories/ghsa-gq5q-c77c-v236)
+- Fix: 招待コードの発行可能な残り数算出に使用すべきロールポリシーの値が違う問題を修正  
+	(Cherry-picked from https://activitypub.software/TransFem-org/Sharkey/-/merge_requests/706)
+- Fix: 連合への配信時に、acctの大小文字が区別されてしまい正しくメンションが処理されないことがある問題を修正  
+	(Cherry-picked from https://activitypub.software/TransFem-org/Sharkey/-/merge_requests/711)
+- Fix: ローカルユーザーへのメンションを含むノートが連合される際に正しいURLに変換されないことがある問題を修正  
+	(Cherry-picked from https://activitypub.software/TransFem-org/Sharkey/-/merge_requests/712)
+- Fix: FTT無効時にユーザーリストタイムラインが使用できない問題を修正  
+	(Cherry-picked from https://activitypub.software/TransFem-org/Sharkey/-/merge_requests/709)
+- Fix: User Webhookテスト機能のMock Payloadを修正
+- Fix: アカウント削除のモデレーションログが動作していないのを修正 (#14996)
+- Fix: リノートミュートが新規投稿通知に対して作用していなかった問題を修正
+- Fix: Inboxの処理で生じるエラーを誤ってActivityとして処理することがある問題を修正  
+	(Cherry-picked from https://activitypub.software/TransFem-org/Sharkey/-/merge_requests/730)
+- Fix: セキュリティに関する修正
+
+### Misskey.js
+- Fix: Stream初期化時、別途WebSocketを指定する場合の型定義を修正
+
+## 2024.10.1 (merged to 2024.11.0-kinel.1)
+
+### Note
+- スパム対策として、モデレータ権限を持つユーザのアクティビティが7日以上確認できない場合は自動的に招待制へと切り替え（コントロールパネル -> モデレーション -> "誰でも新規登録できるようにする"をオフに変更）るようになりました。 ( #13437 )
+	- 切り替わった際はモデレーターへお知らせとして通知されます。登録をオープンな状態で継続したい場合は、コントロールパネルから再度設定を行ってください。
+
+### General
+- Feat: ユーザーの名前に禁止ワードを設定できるように
+
+### Client
+- Enhance: タイムライン表示時のパフォーマンスを向上
+- Enhance: アーカイブした個人宛のお知らせを表示・編集できるように
+- Enhance: l10nの更新
+- Fix: メールアドレス不要でCaptchaが有効な場合にアカウント登録完了後自動でのログインに失敗する問題を修正
+
+### Server
+- Feat: モデレータ権限を持つユーザが全員7日間活動しなかった場合は自動的に招待制へと切り替えるように ( #13437 )
+- Enhance: 個人宛のお知らせは「わかった」を押すと自動的にアーカイブされるように
+- Fix: `admin/emoji/update`エンドポイントのidのみ指定した時不正なエラーが発生するバグを修正
+- Fix: RBT有効時、リノートのリアクションが反映されない問題を修正
+- Fix: キューのエラーログを簡略化するように  
+	(Cherry-picked from https://activitypub.software/TransFem-org/Sharkey/-/merge_requests/649)
+
 ## 2024.10.0-inokashiraskey.2
 
 ### 全体的に
@@ -20,6 +125,7 @@
   - なお、初期パスワードが設定されていない場合でも初期設定を行うことが可能です（UI上で初期パスワードの入力欄を空欄にすると続行できます）。
 - ユーザーデータを読み込む際の型が一部変更されました。
 	- `twoFactorEnabled`, `usePasswordLessLogin`, `securityKeys`: 自分とモデレーター以外のユーザーからは取得できなくなりました
+
 ## 2024.8.0-inokashiraskey.1
 
 ### General
@@ -97,8 +203,6 @@
 - Fix: `<link rel="alternate">`を追って照会するのはOKレスポンスが返却された場合のみに  
   (Cherry-picked from https://activitypub.software/TransFem-org/Sharkey/-/merge_requests/633)
 - Fix: メールにスタイルが適用されていなかった問題を修正
-
-2024.8.0-kinel.1までの変更を取り込みました。
 
 ## 2024.8.0-kinel.1
 
@@ -296,10 +400,6 @@
 ### Server
 - Fix: FTT有効時、タイムライン用エンドポイントで`sinceId`にキャッシュ内最古のものより古いものを指定した場合に正しく結果が返ってこない問題を修正
 
-## 2024.5.0-inokashiraskey.3
-
-2024.5.0-kinel.3までの変更を取り込みました。
-
 ## 2024.5.0-kinel.3
 
 ### Server
@@ -447,71 +547,6 @@
 - Fix: もともとセンシティブではないと連合されていたファイルがセンシティブとして連合された場合にセンシティブとしてそのファイルを扱うように
   - センシティブとして連合したファイルは非センシティブとして連合されてもセンシティブとして扱われます
 
-## v2024.3.1-inokashiraskey.5
-
-基本的に2024.3.1-kinel.5までの変更を取り込みました。
-
-### General
-- Enhance: ぶいみみリレータイムラインを追加しました
-	- ぶいみみリレータイムラインは、[Virtual Kemomimiリレー]に参加しているサーバーからのノートのみが流れるタイムラインです
-		- [Virtual Kemomimiリレー]: https://relay.virtualkemomimi.net/
-- Fix: NSFWガイドラインへのリンクが修正されました
-- Fix: パブリック投稿をホーム投稿に変更するモデレーション操作がVRTLに適用されなかった問題を修正
-
-## 2024.3.1-kinel.4
-- Enhance: ぶいみみリレーソーシャルタイムラインを追加しました
-	- ぶいみみリレーソーシャルタイムラインは、ぶいみみリレータイムラインとホームタイムラインのノートが流れます
-- Feat: ぶいみみリレータイムラインの`TLに他の人への返信を含める`の動作をローカルタイムラインに揃えました
-	- `TLに他の人への返信を含める`を有効にすると、ぶいみみリレーに参加しているサーバーのユーザーが他の誰かにリプライしたノートが表示されます。無効にするとこれらが含まれなくなります。
-
-### Client
-- Feat: ぶいみみリレータイムラインの説明をtlの先頭に追加しました
-- Chore: `ぶいみみリレーソーシャルタイムライン`を`ぶいみみソーシャルタイムライン`に名称を変更しました
-- `画像の圧縮形式`の設定が、`画像を縮小する`と`画像を常に非可逆圧縮する`の2つのスイッチに分割されました
-  - 前バージョンまでの設定はそのまま引き継がれます
-
-### Server
-- Fix: FTT有効かつDBフォールバック有効時、STLのようにタイムラインのソースが複数だとFTTとDBのフォールバック間で取得されないノートがある問題
-
-## 2024.3.1-kinel.3
-
-### General
-- Enhance: ぶいみみリレーソーシャルタイムラインを追加しました
-  - ぶいみみリレーソーシャルタイムラインは、ぶいみみリレータイムラインとホームタイムラインのノートが流れます
-- Feat: ぶいみみリレータイムラインの`TLに他の人への返信を含める`の動作をローカルタイムラインに揃えました
-  - `TLに他の人への返信を含める`を有効にすると、ぶいみみリレーに参加しているサーバーのユーザーが他の誰かにリプライしたノートが表示されます。無効にするとこれらが含まれなくなります。
-
-### Server
-- Feat: ぶいみみリレータイムラインがFFTを用いて再実装されました。
-
-## 2024.3.1-kinel.2
-
-### General
-- Enhance: ぶいみみリレータイムラインを追加しました
-  - ぶいみみリレータイムラインは、[Virtual Kemomimiリレー]に参加しているサーバーからのノートのみが流れるタイムラインです
-
-[Virtual Kemomimiリレー]: https://relay.virtualkemomimi.net/
-
-### Client
-	- 前バージョンまでの設定はそのまま引き継がれます
-- Enhance: 画像アップロード時に縮小する場合の大きさを2048x2048以下から2560x2560以下に変更しました
-  - 既存のファイルは更新されず、新規アップロード分にのみ適用されます
-- Fix: パブリック投稿をホーム投稿に変更するモデレーション操作がUI上で行えなくなっていた問題を修正
-- Fix: `ユーザページでセンシティブチャンネルの投稿を閉じる`設定が無効にならない問題を修正
-
-### Server
-- Feat: ぶいみみリレータイムラインがFFTを用いて再実装されました。
-- Fix: FTT有効かつDBフォールバック有効時、STLのようにタイムラインのソースが複数だとFTTとDBのフォールバック間で取得されないノートがある問題
-
-## 2024.3.1-inokashiraskey.2
-
-- Fix: GitHub Actionsでmainブランチとinokashiraskeyブランチへのプッシュ時にテストが走っていない不具合を修正
-- Fix: GitHub ActionsでE2Eテストが全く行われていなかった不具合を修正
-
-## 2024.3.1-inokashiraskey.1
-
-2024.3.1-kinel.1と全く同一です
-
 ## 2024.3.1-kinel.5
 
 ### General
@@ -565,10 +600,6 @@
   - 履歴に残っている or ピン留めされた絵文字がコントロールパネルより削除されていた際にリアクションデッキが表示できなくなる
   - Unicode絵文字が履歴に残っている or ピン留めされているとリアクションデッキが表示できなくなる
 - Fix: カスタム絵文字の画像読み込みに失敗した際はテキストではなくダミー画像を表示 #13487
-
-## 2024.3.0-inokashiraskey.1
-
-2024.3.0-kinel.1と全く同一です
 
 ## 2024.3.0-kinel.1
 
@@ -635,11 +666,6 @@
 
 ### Server
 - リモートユーザの削除が記録されないようになりました。
-
-## 2024.2.0-sushiski
-
-### Server
-- ローカルユーザーがまだ誰もフォローしていないリモートユーザーによる通知を引き起こす可能性のある投稿を拒否できるように
 
 ## 2024.2.0 (merged to 2024.2.0-kinel.1)
 
