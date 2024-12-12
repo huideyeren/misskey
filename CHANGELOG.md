@@ -1,3 +1,9 @@
+## 2024.11.0-inokashiraskey.2
+
+### Note
+
+- Dockerイメージ対応
+
 ## 2024.11.0-inokashiraskey.1
 
 ### Note
