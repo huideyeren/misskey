@@ -1,3 +1,7 @@
+## 2024.11.0-inokashiraskey.3
+
+`2024.11.0-kinel.2` を適用しました。
+
 ## 2024.11.0-kinel.2 (merged to 2024.11.0-inokashiraskey.3)
 
 ### General
