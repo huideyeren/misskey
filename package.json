@@ -1,10 +1,10 @@
 {
 	"name": "misskey",
-	"version": "2024.11.0-inokashiraskey.2",
+	"version": "2024.11.0-inokashiraskey.3",
 	"codename": "nasubi",
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/huideyeren/misskey"
+		"url": "https://github.com/niri-la/misskey.niri.la"
 	},
 	"packageManager": "pnpm@9.6.0",
 	"workspaces": [
