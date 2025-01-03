@@ -132,9 +132,9 @@ export function openInstanceMenu(ev: MouseEvent) {
 		target: '_blank',
 	});
 
-	//if (!instance.impressumUrl && !instance.tosUrl && !instance.privacyPolicyUrl) {
+	if (instance.impressumUrl != null || instance.tosUrl != null || instance.privacyPolicyUrl != null) {
 		menuItems.push({ type: 'divider' });
-	//}
+	}
 
 	menuItems.push({
 		type: 'a',
