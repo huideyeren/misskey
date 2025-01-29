@@ -635,21 +635,15 @@ export class NoteCreateService implements OnApplicationShutdown {
 
 			this.roleService.addNoteToRoleTimeline(noteObj);
 
-			this.webhookService.getActiveWebhooks().then(webhooks => {
-				const userNoteEvent = `note@${user.username}` as const;
-				webhooks = webhooks.filter(x => (x.userId === user.id && x.on.includes('note')) || x.on.includes(userNoteEvent));
-				for (const webhook of webhooks) {
-					this.queueService.userWebhookDeliver(webhook, 'note', {
-						note: noteObj,
-					});
-				}
-			});
+			this.webhookService.enqueueUserWebhook(user.id, 'note', { note: noteObj });
+			this.webhookService.enqueueAdminWebhook(`note@${user.username}`, { note: noteObj });
 
 			const nm = new NotificationManager(this.mutingsRepository, this.notificationService, user, note);
 
 			await this.createMentionedEvents(mentionedUsers, note, nm);
 
 			// If has in reply to note
+			let isOnThreadMutedTree = false;
 			if (data.reply) {
 				// 通知
 				if (data.reply.userHost === null) {
@@ -659,17 +653,12 @@ export class NoteCreateService implements OnApplicationShutdown {
 							threadId: data.reply.threadId ?? data.reply.id,
 						},
 					});
+					isOnThreadMutedTree = isThreadMuted;
 
 					if (!isThreadMuted) {
 						nm.push(data.reply.userId, 'reply');
 						this.globalEventService.publishMainStream(data.reply.userId, 'reply', noteObj);
-
-						const webhooks = (await this.webhookService.getActiveWebhooks()).filter(x => x.userId === data.reply!.userId && x.on.includes('reply'));
-						for (const webhook of webhooks) {
-							this.queueService.userWebhookDeliver(webhook, 'reply', {
-								note: noteObj,
-							});
-						}
+						this.webhookService.enqueueUserWebhook(data.reply.userId, 'reply', { note: noteObj });
 					}
 				}
 			}
@@ -680,18 +669,22 @@ export class NoteCreateService implements OnApplicationShutdown {
 
 				// Notify
 				if (data.renote.userHost === null) {
-					nm.push(data.renote.userId, type);
-				}
+					const isThreadMuted = await this.noteThreadMutingsRepository.exists({
+						where: {
+							userId: data.renote.userId,
+							threadId: data.renote.threadId ?? data.renote.id,
+						},
+					});
 
-				// Publish event
-				if ((user.id !== data.renote.userId) && data.renote.userHost === null) {
-					this.globalEventService.publishMainStream(data.renote.userId, 'renote', noteObj);
+					// If the quoted note is not thread muted but the quoting note is on thread muted tree, need to mute it.
+					if (!isThreadMuted && !isOnThreadMutedTree) {
+						nm.push(data.renote.userId, type);
 
-					const webhooks = (await this.webhookService.getActiveWebhooks()).filter(x => x.userId === data.renote!.userId && x.on.includes('renote'));
-					for (const webhook of webhooks) {
-						this.queueService.userWebhookDeliver(webhook, 'renote', {
-							note: noteObj,
-						});
+						// Publish event
+						if (user.id !== data.renote.userId) {
+							this.globalEventService.publishMainStream(data.renote.userId, 'renote', noteObj);
+							this.webhookService.enqueueUserWebhook(data.renote.userId, 'renote', { note: noteObj });
+						}
 					}
 				}
 			}
@@ -699,7 +692,7 @@ export class NoteCreateService implements OnApplicationShutdown {
 			nm.notify();
 
 			//#region AP deliver
-			if (this.userEntityService.isLocalUser(user)) {
+			if (!data.localOnly && this.userEntityService.isLocalUser(user)) {
 				(async () => {
 					const noteActivity = await this.renderNoteOrRenoteActivity(data, note);
 					const dm = this.apDeliverManagerService.createDeliverManager(user, noteActivity);
@@ -818,13 +811,7 @@ export class NoteCreateService implements OnApplicationShutdown {
 			});
 
 			this.globalEventService.publishMainStream(u.id, 'mention', detailPackedNote);
-
-			const webhooks = (await this.webhookService.getActiveWebhooks()).filter(x => x.userId === u.id && x.on.includes('mention'));
-			for (const webhook of webhooks) {
-				this.queueService.userWebhookDeliver(webhook, 'mention', {
-					note: detailPackedNote,
-				});
-			}
+			this.webhookService.enqueueUserWebhook(u.id, 'mention', { note: detailPackedNote });
 
 			// Create notification
 			nm.push(u.id, 'mention');
