@@ -136,7 +136,7 @@ export class ApPersonService implements OnModuleInit {
 	 */
 	@bindThis
 	private validateActor(x: IObject, uri: string): IActor {
-		const expectHost = this.utilityService.punyHostPSLDomain(uri);
+		const expectHost = this.utilityService.punyHost(uri);
 
 		if (!isActor(x)) {
 			throw new Error(`invalid Actor type '${x.type}'`);
@@ -150,16 +150,19 @@ export class ApPersonService implements OnModuleInit {
 			throw new Error('invalid Actor: wrong inbox');
 		}
 
-		const inboxHost = this.utilityService.punyHostPSLDomain(x.inbox);
-		if (inboxHost !== expectHost) {
-			throw new Error(`invalid Actor ${uri} - wrong inbox ${inboxHost}`);
+		if (this.utilityService.punyHost(x.inbox) !== expectHost) {
+			throw new Error('invalid Actor: inbox has different host');
 		}
 
 		const sharedInboxObject = x.sharedInbox ?? (x.endpoints ? x.endpoints.sharedInbox : undefined);
 		if (sharedInboxObject != null) {
 			const sharedInbox = getApId(sharedInboxObject);
-			if (!(typeof sharedInbox === 'string' && sharedInbox.length > 0 && this.utilityService.punyHostPSLDomain(sharedInbox) === expectHost)) {
-				throw new Error(`invalid Actor ${uri} - wrong shared inbox ${sharedInbox}`);
+			if (!(typeof sharedInbox === 'string' && sharedInbox.length > 0 && new URL(sharedInbox).host === expectHost)) {
+				this.logger.warn(`invalid Actor: skipping wrong shared inbox, expected host: ${expectHost}, actual URL: ${sharedInbox}`);
+				x.sharedInbox = undefined;
+				if (x.endpoints?.sharedInbox) {
+					x.endpoints.sharedInbox = undefined;
+				}
 			}
 		}
 
@@ -168,8 +171,8 @@ export class ApPersonService implements OnModuleInit {
 			if (xCollection != null) {
 				const collectionUri = getApId(xCollection);
 				if (typeof collectionUri === 'string' && collectionUri.length > 0) {
-					if (this.utilityService.punyHostPSLDomain(collectionUri) !== expectHost) {
-						throw new Error(`invalid Actor ${uri} - wrong ${collection} ${collectionUri}`);
+					if (this.utilityService.punyHost(collectionUri) !== expectHost) {
+						throw new Error(`invalid Actor: ${collection} has different host`);
 					}
 				} else if (collectionUri != null) {
 					throw new Error(`invalid Actor: wrong ${collection}`);
@@ -200,7 +203,7 @@ export class ApPersonService implements OnModuleInit {
 			x.summary = truncate(x.summary, summaryLength);
 		}
 
-		const idHost = this.utilityService.punyHostPSLDomain(x.id);
+		const idHost = this.utilityService.punyHost(x.id);
 		if (idHost !== expectHost) {
 			throw new Error('invalid Actor: id has different host');
 		}
@@ -210,7 +213,7 @@ export class ApPersonService implements OnModuleInit {
 				throw new Error('invalid Actor: publicKey.id is not a string');
 			}
 
-			const publicKeyIdHost = this.utilityService.punyHostPSLDomain(x.publicKey.id);
+			const publicKeyIdHost = this.utilityService.punyHost(x.publicKey.id);
 			if (publicKeyIdHost !== expectHost) {
 				throw new Error('invalid Actor: publicKey.id has different host');
 			}
@@ -345,14 +348,8 @@ export class ApPersonService implements OnModuleInit {
 			throw new Error('Refusing to create person without id');
 		}
 
-		if (url != null) {
-			if (!checkHttps(url)) {
-				throw new Error('unexpected schema of person url: ' + url);
-			}
-
-			if (this.utilityService.punyHostPSLDomain(url) !== this.utilityService.punyHostPSLDomain(person.id)) {
-				throw new Error(`person url <> uri host mismatch: ${url} <> ${person.id} in ${uri}`);
-			}
+		if (url && !checkHttps(url)) {
+			throw new Error('unexpected schema of person url: ' + url);
 		}
 
 		// Create user
@@ -553,8 +550,8 @@ export class ApPersonService implements OnModuleInit {
 				throw new Error('unexpected schema of person url: ' + url);
 			}
 
-			if (this.utilityService.punyHostPSLDomain(url) !== this.utilityService.punyHostPSLDomain(person.id)) {
-				throw new Error(`person url <> uri host mismatch: ${url} <> ${person.id} in ${uri}`);
+			if (this.utilityService.punyHost(url) !== this.utilityService.punyHost(person.id)) {
+				throw new Error(`person url <> uri host mismatch: ${url} <> ${person.id}`);
 			}
 		}
 

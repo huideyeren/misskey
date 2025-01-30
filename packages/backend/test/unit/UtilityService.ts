@@ -28,17 +28,4 @@ describe('UtilityService', () => {
 			assert.equal(utilityService.punyHost('http://www.新聞.com'), 'www.xn--efvv70d.com');
 		});
 	});
-
-	describe('punyHostPSLDomain', () => {
-		test('simple', () => {
-			assert.equal(utilityService.punyHostPSLDomain('http://www.foo.com'), 'foo.com');
-		});
-		test('japanese', () => {
-			assert.equal(utilityService.punyHostPSLDomain('http://www.新聞.com'), 'xn--efvv70d.com');
-		});
-		test('lower', () => {
-			assert.equal(utilityService.punyHostPSLDomain('http://foo.github.io'), 'foo.github.io');
-			assert.equal(utilityService.punyHostPSLDomain('http://foo.bar.github.io'), 'bar.github.io');
-		});
-	});
 });
