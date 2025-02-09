@@ -2,7 +2,7 @@
 
 基本的に 2025.2.0-kinel.1 に準拠しています。
 
-## 2025.2.0-kinel.1
+## 2025.2.0-kinel.1 (merged to 2025.2.0-inokashiraskey.1)
 ## 2025.2.0 (merged to 2025.2.0-kinel.1)
 
 ### General
