@@ -2,6 +2,8 @@
 
 This is huideyeren's fork of Misskey.
 
+This fork is used for [Inokashiraskey](https://inokashiraskey.jp/).
+
 This is based on anatawa12's fork.
 
 Anatawa12's fork is used for several purposes:
