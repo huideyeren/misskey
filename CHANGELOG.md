@@ -1,3 +1,38 @@
+## 2025.2.0-inokashiraskey.1
+
+基本的に 2025.2.0-kinel.1 に準拠しています。
+
+## 2025.2.0-kinel.1 (merged to 2025.2.0-inokashiraskey.1)
+## 2025.2.0 (merged to 2025.2.0-kinel.1)
+
+### General
+- Fix: Docker のビルドに失敗する問題を修正  
+	(Cherry-picked from https://activitypub.software/TransFem-org/Sharkey/-/merge_requests/883)
+
+### Client
+- Fix: パスキーでパスワードレスログインが出来ない問題を修正
+- Fix: 一部環境でセンシティブなファイルを含むノートの非表示が効かない問題
+- Fix: データセーバー有効時にもユーザーページの「ファイル」タブで画像が読み込まれてしまう問題を修正
+- Fix: MFMの `sparkle` エフェクトが正しく表示されない問題を修正
+- Fix: ページのURLにスラッシュが含まれている場合にページが正しく表示されない問題を修正
+- Fix: デッキのプロファイルが新規作成できない問題を修正
+- Fix: セキュリティに関する修正
+- ローカライゼーションの更新
+- Playが実装されたため、ページ機能の「ソースを見る」は削除されました
+
+### Server
+- Enhance: ページのURLに使用可能な文字を限定するように
+- Fix: 個別お知らせページのmetaタグ出力の条件が間違っていたのを修正
+
+## 2025.1.0-kinel.2
+
+### General
+- Fix: Docker のビルドに失敗する問題を修正  
+	(Cherry-picked from https://activitypub.software/TransFem-org/Sharkey/-/merge_requests/883)
+
+### Server
+- Fix: にりみす固有APIが消えてしまっている問題を修正
+
 ## 2025.1.0-inokashiraskey.1
 
 基本的に 2025.1.0-kinel.1 に準拠しています。
@@ -131,7 +166,6 @@
 
 ### Server
 - Fix: ユーザーのプロフィール画面をアドレス入力などで直接表示した際に概要タブの描画に失敗する問題の修正( #15032 )
->>>>>>>>> Temporary merge branch 2
 
 ### Client
 - Enhance: ノートの表示がTL上で畳まれる条件を緩和(実験的)\
