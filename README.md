@@ -1,8 +1,10 @@
-# Anatawa12's fork of Misskey
+# huideyeren's fork of Misskey
 
-This is anatawa12's fork of Misskey.
+This is huideyeren's fork of Misskey.
 
-This fork is used for several purposes:
+This is based on anatawa12's fork.
+
+Anatawa12's fork is used for several purposes:
 
 - The repository for [vmimi-relay timeline] extension development. I'm the maintainer of the [vmimi-relay timeline].
 - The repository for writing pull-requests to the vmimi relay users. I'm usually sending pull requests to the vmimi relay users after each updates.
