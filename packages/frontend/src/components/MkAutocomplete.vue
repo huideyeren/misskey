@@ -7,7 +7,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 <div ref="rootEl" :class="$style.root" class="_popup _shadow" :style="{ zIndex }" @contextmenu.prevent="() => {}">
 	<ol v-if="type === 'user'" ref="suggests" :class="$style.list">
 		<li v-for="user in users" tabindex="-1" :class="$style.item" @click="complete(type, user)" @keydown="onKeydown">
-			<img :class="$style.avatar" :src="user.avatarUrl"/>
+			<img :class="$style.avatar" :src="user.avatarUrl" :alt="user.name" />
 			<span :class="$style.userName">
 				<MkUserName :key="user.id" :user="user"/>
 			</span>
@@ -59,7 +59,6 @@ import { i18n } from '@/i18n.js';
 import { miLocalStorage } from '@/local-storage.js';
 import { customEmojis } from '@/custom-emojis.js';
 
-
 export type CompleteInfo = {
 	user: {
 		payload: any;
@@ -90,7 +89,7 @@ export type CompleteInfo = {
 			params: string[];
 		};
 	},
-}
+};
 
 const lib = emojilist.filter(x => x.category !== 'flags');
 
@@ -168,7 +167,7 @@ type PropsType<T extends keyof CompleteInfo> = {
 	close: () => void;
 	x: number;
 	y: number;
-}
+};
 //const props = defineProps<PropsType<keyof CompleteInfo>>();
 // ↑と同じだけど↓にしないとdiscriminated unionにならない。
 // https://www.typescriptlang.org/docs/handbook/typescript-in-5-minutes-func.html#discriminated-unions
