@@ -667,14 +667,7 @@ export class MiMeta {
 	@Column('boolean', {
 		default: false,
 	})
-	public nirilaBlockMentionsFromUnfamiliarRemoteUsers: boolean;
 
-	@Column('varchar', {
-		length: 64,
-		array: true,
-		default: '{}',
-	})
-	public nirilaAllowedUnfamiliarRemoteUserIds: string[];
 	public googleAnalyticsMeasurementId: string | null;
 
 	@Column('jsonb', {

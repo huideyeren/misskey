@@ -10706,10 +10706,6 @@ export interface Locale extends ILocale {
          */
         "deleteGalleryPost": string;
         /**
-         * ノートをホーム投稿に変更
-         */
-        "makeNoteHome": string;
-        /**
          * チャットルームを削除
          */
         "deleteChatRoom": string;
