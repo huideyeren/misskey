@@ -4,15 +4,12 @@ VRTLのブランチで行われた変更点をまとめています
 
 <!-- VV Please add changelog here VV -->
 
---- 2025.3.1-vrtl.1 released at this time ---
+--- 2025.4.0-kinel.1 released at this time ---
+--- 2025.2.1-kinel.1 released at this time ---
+--- 2025.2.0-kinel.1 released at this time ---
+--- 2025.1.0-kinel.2 released at this time ---
+--- 2025.1.0-kinel.1 released at this time ---
 
---- 2025.2.1-vrtl.1 released at this time ---
-
---- 2025.2.0-vrtl.1 released at this time ---
-
---- 2025.1.0-vrtl.2 released at this time ---
-
-- fix(backend): Unexpectedly removed VRTL endpoints in 2025.1.0-vrtl.1
 - fix(frontend): Unable to see VRTL when logged in
 
 --- 2025.1.0-vrtl.1 released at this time ---
@@ -35,6 +32,7 @@ VRTLのブランチで行われた変更点をまとめています
 
 - fix(frontend): VRTL VSTLの名前が表示されないところがある問題 (anatawa12#97) - 2024/08/07
 - fic(frontend): VRTL VSTLでリプライのトグルが表示されない問題 (anatawa12#92) - 2024/08/04
+
 
 --- 2024.7.0-kinel.1 ---
 

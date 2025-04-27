@@ -676,4 +676,26 @@ export class MiMeta {
 	})
 	public nirilaAllowedUnfamiliarRemoteUserIds: string[];
 	public googleAnalyticsMeasurementId: string | null;
+
+	@Column('jsonb', {
+		default: [],
+	})
+	public deliverSuspendedSoftware: SoftwareSuspension[];
+
+	@Column('boolean', {
+		default: false,
+	})
+	public nirilaBlockMentionsFromUnfamiliarRemoteUsers: boolean;
+
+	@Column('varchar', {
+		length: 32,
+		array: true,
+		default: '{}',
+	})
+	public nirilaAllowedUnfamiliarRemoteUserIds: string[];
 }
+
+export type SoftwareSuspension = {
+	software: string,
+	versionRange: string,
+};
