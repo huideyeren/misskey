@@ -5,7 +5,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 
 <template>
 <div class="_spacer" style="--MI_SPACER-w: 700px;">
-	<MkPagination v-slot="{items}" ref="list" :pagination="pagination">
+	<MkPagination v-slot="{items}" :paginator="paginator">
 		<div v-for="item in interruptNotes(items)" :key="item.id" :to="`/clips/${item.id}`" class="_panel _margin">
 			<div :class="$style.header">
 				<MkAvatar :class="$style.avatar" :user="user"/>
@@ -19,11 +19,12 @@ SPDX-License-Identifier: AGPL-3.0-only
 </template>
 
 <script lang="ts" setup>
-import { computed } from 'vue';
+import { computed, markRaw } from 'vue';
 import * as Misskey from 'misskey-js';
 import MkPagination from '@/components/MkPagination.vue';
 import MkNote from '@/components/MkNote.vue';
 import MkReactionIcon from '@/components/MkReactionIcon.vue';
+import { Paginator } from '@/utility/paginator.js';
 import { useInterruptNotes } from '@/composables/use-interrupt-notes';
 
 const props = defineProps<{
@@ -32,13 +33,12 @@ const props = defineProps<{
 
 const interruptNotes = useInterruptNotes<Misskey.entities.NoteReaction, 'note'>('note');
 
-const pagination = {
-	endpoint: 'users/reactions' as const,
+const paginator = markRaw(new Paginator('users/reactions', {
 	limit: 20,
-	params: computed(() => ({
+	computedParams: computed(() => ({
 		userId: props.user.id,
 	})),
-};
+}));
 </script>
 
 <style lang="scss" module>

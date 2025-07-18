@@ -4,17 +4,17 @@ SPDX-License-Identifier: AGPL-3.0-only
 -->
 
 <template>
-<MkPagination ref="pagingComponent" :pagination="pagination" :disableAutoLoad="disableAutoLoad" :pullToRefresh="pullToRefresh">
+<MkPagination :paginator="paginator" :autoLoad="autoLoad" :pullToRefresh="pullToRefresh" :withControl="withControl">
 	<template #empty><MkResult type="empty" :text="i18n.ts.noNotes"/></template>
 
 	<template #default="{ items: notes }">
 		<div :class="[$style.root, { [$style.noGap]: noGap, '_gaps': !noGap }]">
 			<template v-for="(note, i) in interruptNotes(notes)" :key="note.id">
-				<div v-if="i > 0 && isSeparatorNeeded(pagingComponent.paginator.items.value[i -1].createdAt, note.createdAt)" :data-scroll-anchor="note.id">
+				<div v-if="i > 0 && isSeparatorNeeded(paginator.items.value[i -1].createdAt, note.createdAt)" :data-scroll-anchor="note.id">
 					<div :class="$style.date">
-						<span><i class="ti ti-chevron-up"></i> {{ getSeparatorInfo(pagingComponent.paginator.items.value[i -1].createdAt, note.createdAt).prevText }}</span>
+						<span><i class="ti ti-chevron-up"></i> {{ getSeparatorInfo(paginator.items.value[i -1].createdAt, note.createdAt).prevText }}</span>
 						<span style="height: 1em; width: 1px; background: var(--MI_THEME-divider);"></span>
-						<span>{{ getSeparatorInfo(pagingComponent.paginator.items.value[i -1].createdAt, note.createdAt).nextText }} <i class="ti ti-chevron-down"></i></span>
+						<span>{{ getSeparatorInfo(paginator.items.value[i -1].createdAt, note.createdAt).nextText }} <i class="ti ti-chevron-down"></i></span>
 					</div>
 					<MkNote :class="$style.note" :note="note" :withHardMute="true"/>
 				</div>
@@ -31,21 +31,9 @@ SPDX-License-Identifier: AGPL-3.0-only
 </MkPagination>
 </template>
 
-<script lang="ts">
+<script lang="ts" setup generic="T extends IPaginator<Misskey.entities.Note>">
 import * as Misskey from 'misskey-js';
-
-type NoteEndpoints = keyof Misskey.Endpoints extends infer DEDistribuive ?
-	DEDistribuive extends keyof Misskey.Endpoints ?
-		Misskey.Endpoints[DEDistribuive]['res'] extends Misskey.entities.Note[]
-			? DEDistribuive
-			: never
-		: never
-	: never;
-</script>
-
-<script lang="ts" setup generic="E extends NoteEndpoints, T extends PagingCtx<E>">
-import { useTemplateRef } from 'vue';
-import type { PagingCtx } from '@/composables/use-pagination.js';
+import type { IPaginator } from '@/utility/paginator.js';
 import MkNote from '@/components/MkNote.vue';
 import MkPagination from '@/components/MkPagination.vue';
 import { i18n } from '@/i18n.js';
@@ -54,24 +42,25 @@ import { isSeparatorNeeded, getSeparatorInfo } from '@/utility/timeline-date-sep
 import { useInterruptNotes } from '@/composables/use-interrupt-notes';
 
 const props = withDefaults(defineProps<{
-	pagination: T;
+	paginator: T;
 	noGap?: boolean;
-	disableAutoLoad?: boolean;
+	autoLoad?: boolean;
 	pullToRefresh?: boolean;
+	withControl?: boolean;
 }>(), {
+	autoLoad: true,
 	pullToRefresh: true,
+	withControl: true,
 });
 
 const interruptNotes = useInterruptNotes('');
 
-const pagingComponent = useTemplateRef('pagingComponent');
-
 useGlobalEvent('noteDeleted', (noteId) => {
-	pagingComponent.value?.paginator.removeItem(noteId);
+	props.paginator.removeItem(noteId);
 });
 
 function reload() {
-	return pagingComponent.value?.paginator.reload();
+	return props.paginator.reload();
 }
 
 defineExpose({
