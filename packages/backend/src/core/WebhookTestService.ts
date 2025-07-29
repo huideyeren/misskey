@@ -243,14 +243,6 @@ export class WebhookTestService {
 			case 'reaction':
 				return;
 			default: {
-				function isNoteType(type: string): type is `note@${string}` {
-					return params.type.startsWith('note@');
-				}
-
-				if (isNoteType(params.type)) {
-					send<`note@${string}`>(params.type, { note: await this.toPackedNote(dummyNote1) });
-					return;
-				}
 				// eslint-disable-next-line @typescript-eslint/no-unused-vars
 				const _exhaustiveAssertion: never = params.type;
 				return;
@@ -334,6 +326,19 @@ export class WebhookTestService {
 				break;
 			}
 			default: {
+				function isNoteType(type: string): type is `note@${string}` {
+					return type.startsWith('note@');
+				}
+
+				if (isNoteType(params.type)) {
+					send<`note@${string}`>(params.type, {
+						note: await this.toPackedNote(generateDummyNote({
+							userId: dummyUser1.id,
+							user: dummyUser1,
+						})),
+					});
+					return;
+				}
 				// eslint-disable-next-line @typescript-eslint/no-unused-vars
 				const _exhaustiveAssertion: never = params.type;
 				return;
@@ -419,8 +424,8 @@ export class WebhookTestService {
 			name: user.name,
 			username: user.username,
 			host: user.host,
-			avatarUrl: user.avatarUrl,
-			avatarBlurhash: user.avatarBlurhash,
+			avatarUrl: user.avatarId == null ? null : user.avatarUrl,
+			avatarBlurhash: user.avatarId == null ? null : user.avatarBlurhash,
 			avatarDecorations: user.avatarDecorations.map(it => ({
 				id: it.id,
 				angle: it.angle,
@@ -449,8 +454,8 @@ export class WebhookTestService {
 			createdAt: new Date().toISOString(),
 			updatedAt: user.updatedAt?.toISOString() ?? null,
 			lastFetchedAt: user.lastFetchedAt?.toISOString() ?? null,
-			bannerUrl: user.bannerUrl,
-			bannerBlurhash: user.bannerBlurhash,
+			bannerUrl: user.bannerId == null ? null : user.bannerUrl,
+			bannerBlurhash: user.bannerId == null ? null : user.bannerBlurhash,
 			isLocked: user.isLocked,
 			isSilenced: false,
 			isSuspended: user.isSuspended,

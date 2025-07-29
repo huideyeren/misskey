@@ -78,9 +78,19 @@ import type {
 	AdminNirilaDeleteUserLogAccessResponse,
 	AdminNotePublicToHomeRequest,
 	AdminPromoCreateRequest,
+	AdminQueueClearRequest,
 	AdminQueueDeliverDelayedResponse,
 	AdminQueueInboxDelayedResponse,
-	AdminQueuePromoteRequest,
+	AdminQueueJobsRequest,
+	AdminQueueJobsResponse,
+	AdminQueuePromoteJobsRequest,
+	AdminQueueQueueStatsRequest,
+	AdminQueueQueueStatsResponse,
+	AdminQueueQueuesResponse,
+	AdminQueueRemoveJobRequest,
+	AdminQueueRetryJobRequest,
+	AdminQueueShowJobRequest,
+	AdminQueueShowJobResponse,
 	AdminQueueStatsResponse,
 	AdminRelaysAddRequest,
 	AdminRelaysAddResponse,
@@ -217,9 +227,7 @@ import type {
 	ChatMessagesCreateToUserRequest,
 	ChatMessagesCreateToUserResponse,
 	ChatMessagesDeleteRequest,
-	ChatMessagesDeleteResponse,
 	ChatMessagesReactRequest,
-	ChatMessagesReactResponse,
 	ChatMessagesRoomTimelineRequest,
 	ChatMessagesRoomTimelineResponse,
 	ChatMessagesSearchRequest,
@@ -227,31 +235,25 @@ import type {
 	ChatMessagesShowRequest,
 	ChatMessagesShowResponse,
 	ChatMessagesUnreactRequest,
-	ChatMessagesUnreactResponse,
 	ChatMessagesUserTimelineRequest,
 	ChatMessagesUserTimelineResponse,
 	ChatRoomsCreateRequest,
 	ChatRoomsCreateResponse,
 	ChatRoomsDeleteRequest,
-	ChatRoomsDeleteResponse,
 	ChatRoomsInvitationsCreateRequest,
 	ChatRoomsInvitationsCreateResponse,
 	ChatRoomsInvitationsIgnoreRequest,
-	ChatRoomsInvitationsIgnoreResponse,
 	ChatRoomsInvitationsInboxRequest,
 	ChatRoomsInvitationsInboxResponse,
 	ChatRoomsInvitationsOutboxRequest,
 	ChatRoomsInvitationsOutboxResponse,
 	ChatRoomsJoinRequest,
-	ChatRoomsJoinResponse,
 	ChatRoomsJoiningRequest,
 	ChatRoomsJoiningResponse,
 	ChatRoomsLeaveRequest,
-	ChatRoomsLeaveResponse,
 	ChatRoomsMembersRequest,
 	ChatRoomsMembersResponse,
 	ChatRoomsMuteRequest,
-	ChatRoomsMuteResponse,
 	ChatRoomsOwnedRequest,
 	ChatRoomsOwnedResponse,
 	ChatRoomsShowRequest,
@@ -276,6 +278,8 @@ import type {
 	DriveResponse,
 	DriveFilesRequest,
 	DriveFilesResponse,
+	DriveFilesAttachedChatMessagesRequest,
+	DriveFilesAttachedChatMessagesResponse,
 	DriveFilesAttachedNotesRequest,
 	DriveFilesAttachedNotesResponse,
 	DriveFilesCheckExistenceRequest,
@@ -287,6 +291,7 @@ import type {
 	DriveFilesFindResponse,
 	DriveFilesFindByHashRequest,
 	DriveFilesFindByHashResponse,
+	DriveFilesMoveBulkRequest,
 	DriveFilesShowRequest,
 	DriveFilesShowResponse,
 	DriveFilesUpdateRequest,
@@ -340,6 +345,8 @@ import type {
 	FlashMyResponse,
 	FlashMyLikesRequest,
 	FlashMyLikesResponse,
+	FlashSearchRequest,
+	FlashSearchResponse,
 	FlashShowRequest,
 	FlashShowResponse,
 	FlashUnlikeRequest,
@@ -488,6 +495,14 @@ import type {
 	NotesCreateRequest,
 	NotesCreateResponse,
 	NotesDeleteRequest,
+	NotesDraftsCountResponse,
+	NotesDraftsCreateRequest,
+	NotesDraftsCreateResponse,
+	NotesDraftsDeleteRequest,
+	NotesDraftsListRequest,
+	NotesDraftsListResponse,
+	NotesDraftsUpdateRequest,
+	NotesDraftsUpdateResponse,
 	NotesFavoritesCreateRequest,
 	NotesFavoritesDeleteRequest,
 	NotesFeaturedRequest,
@@ -517,6 +532,8 @@ import type {
 	NotesSearchByTagResponse,
 	NotesShowRequest,
 	NotesShowResponse,
+	NotesShowPartialBulkRequest,
+	NotesShowPartialBulkResponse,
 	NotesStateRequest,
 	NotesStateResponse,
 	NotesThreadMutingCreateRequest,
@@ -699,10 +716,16 @@ export type Endpoints = {
 	'admin/nirila-delete-user-log-access': { req: AdminNirilaDeleteUserLogAccessRequest; res: AdminNirilaDeleteUserLogAccessResponse };
 	'admin/note-public-to-home': { req: AdminNotePublicToHomeRequest; res: EmptyResponse };
 	'admin/promo/create': { req: AdminPromoCreateRequest; res: EmptyResponse };
-	'admin/queue/clear': { req: EmptyRequest; res: EmptyResponse };
+	'admin/queue/clear': { req: AdminQueueClearRequest; res: EmptyResponse };
 	'admin/queue/deliver-delayed': { req: EmptyRequest; res: AdminQueueDeliverDelayedResponse };
 	'admin/queue/inbox-delayed': { req: EmptyRequest; res: AdminQueueInboxDelayedResponse };
-	'admin/queue/promote': { req: AdminQueuePromoteRequest; res: EmptyResponse };
+	'admin/queue/jobs': { req: AdminQueueJobsRequest; res: AdminQueueJobsResponse };
+	'admin/queue/promote-jobs': { req: AdminQueuePromoteJobsRequest; res: EmptyResponse };
+	'admin/queue/queue-stats': { req: AdminQueueQueueStatsRequest; res: AdminQueueQueueStatsResponse };
+	'admin/queue/queues': { req: EmptyRequest; res: AdminQueueQueuesResponse };
+	'admin/queue/remove-job': { req: AdminQueueRemoveJobRequest; res: EmptyResponse };
+	'admin/queue/retry-job': { req: AdminQueueRetryJobRequest; res: EmptyResponse };
+	'admin/queue/show-job': { req: AdminQueueShowJobRequest; res: AdminQueueShowJobResponse };
 	'admin/queue/stats': { req: EmptyRequest; res: AdminQueueStatsResponse };
 	'admin/relays/add': { req: AdminRelaysAddRequest; res: AdminRelaysAddResponse };
 	'admin/relays/list': { req: EmptyRequest; res: AdminRelaysListResponse };
@@ -786,24 +809,25 @@ export type Endpoints = {
 	'chat/history': { req: ChatHistoryRequest; res: ChatHistoryResponse };
 	'chat/messages/create-to-room': { req: ChatMessagesCreateToRoomRequest; res: ChatMessagesCreateToRoomResponse };
 	'chat/messages/create-to-user': { req: ChatMessagesCreateToUserRequest; res: ChatMessagesCreateToUserResponse };
-	'chat/messages/delete': { req: ChatMessagesDeleteRequest; res: ChatMessagesDeleteResponse };
-	'chat/messages/react': { req: ChatMessagesReactRequest; res: ChatMessagesReactResponse };
+	'chat/messages/delete': { req: ChatMessagesDeleteRequest; res: EmptyResponse };
+	'chat/messages/react': { req: ChatMessagesReactRequest; res: EmptyResponse };
 	'chat/messages/room-timeline': { req: ChatMessagesRoomTimelineRequest; res: ChatMessagesRoomTimelineResponse };
 	'chat/messages/search': { req: ChatMessagesSearchRequest; res: ChatMessagesSearchResponse };
 	'chat/messages/show': { req: ChatMessagesShowRequest; res: ChatMessagesShowResponse };
-	'chat/messages/unreact': { req: ChatMessagesUnreactRequest; res: ChatMessagesUnreactResponse };
+	'chat/messages/unreact': { req: ChatMessagesUnreactRequest; res: EmptyResponse };
 	'chat/messages/user-timeline': { req: ChatMessagesUserTimelineRequest; res: ChatMessagesUserTimelineResponse };
+	'chat/read-all': { req: EmptyRequest; res: EmptyResponse };
 	'chat/rooms/create': { req: ChatRoomsCreateRequest; res: ChatRoomsCreateResponse };
-	'chat/rooms/delete': { req: ChatRoomsDeleteRequest; res: ChatRoomsDeleteResponse };
+	'chat/rooms/delete': { req: ChatRoomsDeleteRequest; res: EmptyResponse };
 	'chat/rooms/invitations/create': { req: ChatRoomsInvitationsCreateRequest; res: ChatRoomsInvitationsCreateResponse };
-	'chat/rooms/invitations/ignore': { req: ChatRoomsInvitationsIgnoreRequest; res: ChatRoomsInvitationsIgnoreResponse };
+	'chat/rooms/invitations/ignore': { req: ChatRoomsInvitationsIgnoreRequest; res: EmptyResponse };
 	'chat/rooms/invitations/inbox': { req: ChatRoomsInvitationsInboxRequest; res: ChatRoomsInvitationsInboxResponse };
 	'chat/rooms/invitations/outbox': { req: ChatRoomsInvitationsOutboxRequest; res: ChatRoomsInvitationsOutboxResponse };
-	'chat/rooms/join': { req: ChatRoomsJoinRequest; res: ChatRoomsJoinResponse };
+	'chat/rooms/join': { req: ChatRoomsJoinRequest; res: EmptyResponse };
 	'chat/rooms/joining': { req: ChatRoomsJoiningRequest; res: ChatRoomsJoiningResponse };
-	'chat/rooms/leave': { req: ChatRoomsLeaveRequest; res: ChatRoomsLeaveResponse };
+	'chat/rooms/leave': { req: ChatRoomsLeaveRequest; res: EmptyResponse };
 	'chat/rooms/members': { req: ChatRoomsMembersRequest; res: ChatRoomsMembersResponse };
-	'chat/rooms/mute': { req: ChatRoomsMuteRequest; res: ChatRoomsMuteResponse };
+	'chat/rooms/mute': { req: ChatRoomsMuteRequest; res: EmptyResponse };
 	'chat/rooms/owned': { req: ChatRoomsOwnedRequest; res: ChatRoomsOwnedResponse };
 	'chat/rooms/show': { req: ChatRoomsShowRequest; res: ChatRoomsShowResponse };
 	'chat/rooms/update': { req: ChatRoomsUpdateRequest; res: ChatRoomsUpdateResponse };
@@ -820,12 +844,14 @@ export type Endpoints = {
 	'clips/update': { req: ClipsUpdateRequest; res: ClipsUpdateResponse };
 	'drive': { req: EmptyRequest; res: DriveResponse };
 	'drive/files': { req: DriveFilesRequest; res: DriveFilesResponse };
+	'drive/files/attached-chat-messages': { req: DriveFilesAttachedChatMessagesRequest; res: DriveFilesAttachedChatMessagesResponse };
 	'drive/files/attached-notes': { req: DriveFilesAttachedNotesRequest; res: DriveFilesAttachedNotesResponse };
 	'drive/files/check-existence': { req: DriveFilesCheckExistenceRequest; res: DriveFilesCheckExistenceResponse };
 	'drive/files/create': { req: DriveFilesCreateRequest; res: DriveFilesCreateResponse };
 	'drive/files/delete': { req: DriveFilesDeleteRequest; res: EmptyResponse };
 	'drive/files/find': { req: DriveFilesFindRequest; res: DriveFilesFindResponse };
 	'drive/files/find-by-hash': { req: DriveFilesFindByHashRequest; res: DriveFilesFindByHashResponse };
+	'drive/files/move-bulk': { req: DriveFilesMoveBulkRequest; res: EmptyResponse };
 	'drive/files/show': { req: DriveFilesShowRequest; res: DriveFilesShowResponse };
 	'drive/files/update': { req: DriveFilesUpdateRequest; res: DriveFilesUpdateResponse };
 	'drive/files/upload-from-url': { req: DriveFilesUploadFromUrlRequest; res: EmptyResponse };
@@ -857,6 +883,7 @@ export type Endpoints = {
 	'flash/like': { req: FlashLikeRequest; res: EmptyResponse };
 	'flash/my': { req: FlashMyRequest; res: FlashMyResponse };
 	'flash/my-likes': { req: FlashMyLikesRequest; res: FlashMyLikesResponse };
+	'flash/search': { req: FlashSearchRequest; res: FlashSearchResponse };
 	'flash/show': { req: FlashShowRequest; res: FlashShowResponse };
 	'flash/unlike': { req: FlashUnlikeRequest; res: EmptyResponse };
 	'flash/update': { req: FlashUpdateRequest; res: EmptyResponse };
@@ -959,6 +986,11 @@ export type Endpoints = {
 	'notes/conversation': { req: NotesConversationRequest; res: NotesConversationResponse };
 	'notes/create': { req: NotesCreateRequest; res: NotesCreateResponse };
 	'notes/delete': { req: NotesDeleteRequest; res: EmptyResponse };
+	'notes/drafts/count': { req: EmptyRequest; res: NotesDraftsCountResponse };
+	'notes/drafts/create': { req: NotesDraftsCreateRequest; res: NotesDraftsCreateResponse };
+	'notes/drafts/delete': { req: NotesDraftsDeleteRequest; res: EmptyResponse };
+	'notes/drafts/list': { req: NotesDraftsListRequest; res: NotesDraftsListResponse };
+	'notes/drafts/update': { req: NotesDraftsUpdateRequest; res: NotesDraftsUpdateResponse };
 	'notes/favorites/create': { req: NotesFavoritesCreateRequest; res: EmptyResponse };
 	'notes/favorites/delete': { req: NotesFavoritesDeleteRequest; res: EmptyResponse };
 	'notes/featured': { req: NotesFeaturedRequest; res: NotesFeaturedResponse };
@@ -976,6 +1008,7 @@ export type Endpoints = {
 	'notes/search': { req: NotesSearchRequest; res: NotesSearchResponse };
 	'notes/search-by-tag': { req: NotesSearchByTagRequest; res: NotesSearchByTagResponse };
 	'notes/show': { req: NotesShowRequest; res: NotesShowResponse };
+	'notes/show-partial-bulk': { req: NotesShowPartialBulkRequest; res: NotesShowPartialBulkResponse };
 	'notes/state': { req: NotesStateRequest; res: NotesStateResponse };
 	'notes/thread-muting/create': { req: NotesThreadMutingCreateRequest; res: EmptyResponse };
 	'notes/thread-muting/delete': { req: NotesThreadMutingDeleteRequest; res: EmptyResponse };
