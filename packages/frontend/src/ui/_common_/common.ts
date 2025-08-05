@@ -4,10 +4,10 @@
  */
 
 import { defineAsyncComponent } from 'vue';
+import { host } from '@@/js/config.js';
 import type { MenuItem } from '@/types/menu.js';
 import * as os from '@/os.js';
 import { instance } from '@/instance.js';
-import { host } from '@@/js/config.js';
 import { i18n } from '@/i18n.js';
 import { $i } from '@/i.js';
 
@@ -130,17 +130,19 @@ export function openInstanceMenu(ev: MouseEvent) {
 		});
 	}
 
-	menuItems.push({
-		type: 'a',
-		text: 'NSFWガイドライン',
-		icon: 'ti ti-notebook',
-		href: 'https://kinel.notion.site/NSFW-2024-5-1-f926e4bcff3f41c499ccd6ff13b2c4f2',
-		target: '_blank',
-	});
+	if (instance.nsfwPolicyUrl) {
+		menuItems.push({
+			type: 'a',
+			text: 'NSFWガイドライン',
+			icon: 'ti ti-notebook',
+			href: instance.nsfwPolicyUrl,
+			target: '_blank',
+		});
+	}
 
-	//if (instance.impressumUrl != null || instance.tosUrl != null || instance.privacyPolicyUrl != null) {
+	if (instance.impressumUrl != null || instance.tosUrl != null || instance.privacyPolicyUrl != null || instance.nsfwPolicyUrl != null) {
 		menuItems.push({ type: 'divider' });
-	//}
+	}
 
 	menuItems.push({
 		type: 'a',
@@ -154,8 +156,8 @@ export function openInstanceMenu(ev: MouseEvent) {
 		menuItems.push({
 			text: i18n.ts._initialTutorial.launchTutorial,
 			icon: 'ti ti-presentation',
-			action: () => {
-				const { dispose } = os.popup(defineAsyncComponent(() => import('@/components/MkTutorialDialog.vue')), {}, {
+			action: async () => {
+				const { dispose } = await os.popupAsyncWithDialog(import('@/components/MkTutorialDialog.vue').then(x => x.default), {}, {
 					closed: () => dispose(),
 				});
 			},
