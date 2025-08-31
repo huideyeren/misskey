@@ -25,8 +25,8 @@ SPDX-License-Identifier: AGPL-3.0-only
 								<MkUserName class="name" :user="user" :nowrap="true"/>
 								<div class="bottom">
 									<span class="username"><MkAcct :user="user" :detail="true"/></span>
-									<span v-if="user.isLocked" :title="i18n.ts.isLocked"><i class="ti ti-lock"></i></span>
-									<span v-if="user.isBot" :title="i18n.ts.isBot"><i class="ti ti-robot"></i></span>
+									<span v-if="user.isLocked"><i class="ti ti-lock"></i></span>
+									<span v-if="user.isBot"><i class="ti ti-robot"></i></span>
 									<button v-if="$i && !isEditingMemo && !memoDraft" class="_button add-note-button" @click="showMemoTextarea">
 										<i class="ti ti-edit"/> {{ i18n.ts.addMemo }}
 									</button>
@@ -43,8 +43,8 @@ SPDX-License-Identifier: AGPL-3.0-only
 							<MkUserName :user="user" :nowrap="false" class="name"/>
 							<div class="bottom">
 								<span class="username"><MkAcct :user="user" :detail="true"/></span>
-								<span v-if="user.isLocked" :title="i18n.ts.isLocked"><i class="ti ti-lock"></i></span>
-								<span v-if="user.isBot" :title="i18n.ts.isBot"><i class="ti ti-robot"></i></span>
+								<span v-if="user.isLocked"><i class="ti ti-lock"></i></span>
+								<span v-if="user.isBot"><i class="ti ti-robot"></i></span>
 							</div>
 						</div>
 						<div v-if="user.followedMessage != null" class="followedMessage">
@@ -54,7 +54,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 							</MkFukidashi>
 						</div>
 						<div v-if="user.roles.length > 0" class="roles">
-							<span v-for="role in user.roles" :key="role.id" v-tooltip="role.description" class="role" :style="{ '--color': role.color }">
+							<span v-for="role in user.roles" :key="role.id" v-tooltip="role.description" class="role" :style="{ '--color': role.color ?? '' }">
 								<MkA v-adaptive-bg :to="`/roles/${role.id}`">
 									<img v-if="role.iconUrl" style="height: 1.3em; vertical-align: -22%;" :src="role.iconUrl"/>
 									{{ role.name }}
@@ -131,7 +131,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 
 				<div class="contents _gaps">
 					<div v-if="user.pinnedNotes.length > 0" class="_gaps">
-						<MkNote v-for="note in interruptNotes(user.pinnedNotes)" :key="note.id" class="note _panel" :note="note" :pinned="true"/>
+						<MkNote v-for="note in user.pinnedNotes" :key="note.id" class="note _panel" :note="note" :pinned="true"/>
 					</div>
 					<MkInfo v-else-if="$i && $i.id === user.id">{{ i18n.ts.userPagePinTip }}</MkInfo>
 					<template v-if="narrow">
@@ -186,7 +186,6 @@ import { getStaticImageUrl } from '@/utility/media-proxy.js';
 import MkSparkle from '@/components/MkSparkle.vue';
 import { prefer } from '@/preferences.js';
 import MkPullToRefresh from '@/components/MkPullToRefresh.vue';
-import { useInterruptNotes } from '@/composables/use-interrupt-notes';
 
 function calcAge(birthdate: string): number {
 	const date = new Date(birthdate);
@@ -220,7 +219,6 @@ const emit = defineEmits<{
 }>();
 
 const router = useRouter();
-const interruptNotes = useInterruptNotes('');
 
 const user = ref(props.user);
 const parallaxAnimationId = ref<null | number>(null);
@@ -230,7 +228,7 @@ const bannerEl = ref<null | HTMLElement>(null);
 const memoTextareaEl = ref<null | HTMLElement>(null);
 const memoDraft = ref(props.user.memo);
 const isEditingMemo = ref(false);
-const moderationNote = ref(props.user.moderationNote);
+const moderationNote = ref(props.user.moderationNote ?? '');
 const editModerationNote = ref(false);
 
 watch(moderationNote, async () => {
@@ -251,7 +249,7 @@ const style = computed(() => {
 });
 
 const age = computed(() => {
-	return calcAge(props.user.birthday);
+	return props.user.birthday ? calcAge(props.user.birthday) : NaN;
 });
 
 function menu(ev: MouseEvent) {

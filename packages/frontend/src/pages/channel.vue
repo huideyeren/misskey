@@ -27,7 +27,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 			<MkFoldableSection>
 				<template #header><i class="ti ti-pin ti-fw" style="margin-right: 0.5em;"></i>{{ i18n.ts.pinnedNotes }}</template>
 				<div v-if="channel.pinnedNotes && channel.pinnedNotes.length > 0" class="_gaps">
-					<MkNote v-for="note in interruptPinnedNotes(channel.pinnedNotes)" :key="note.id" class="_panel" :note="note"/>
+					<MkNote v-for="note in channel.pinnedNotes" :key="note.id" class="_panel" :note="note"/>
 				</div>
 			</MkFoldableSection>
 		</div>
@@ -98,15 +98,12 @@ import { notesSearchAvailable } from '@/utility/check-permissions.js';
 import { miLocalStorage } from '@/local-storage.js';
 import { useRouter } from '@/router.js';
 import { Paginator } from '@/utility/paginator.js';
-import { useInterruptNotes } from '@/composables/use-interrupt-notes';
 
 const router = useRouter();
 
 const props = defineProps<{
 	channelId: string;
 }>();
-
-const interruptPinnedNotes = useInterruptNotes('');
 
 const tab = ref('overview');
 
@@ -115,7 +112,7 @@ const favorited = ref(false);
 const searchQuery = ref('');
 const searchPaginator = shallowRef();
 const searchKey = ref('');
-const featuredPaginator = markRaw(new Paginator('channels/featured', {
+const featuredPaginator = markRaw(new Paginator('notes/featured', {
 	limit: 10,
 	computedParams: computed(() => ({
 		channelId: props.channelId,
@@ -134,6 +131,8 @@ watch(() => props.channelId, async () => {
 	channel.value = await misskeyApi('channels/show', {
 		channelId: props.channelId,
 	});
+	if (channel.value == null) return; // TSを黙らすため
+
 	favorited.value = channel.value.isFavorited ?? false;
 	if (favorited.value || channel.value.isFollowing) {
 		tab.value = 'timeline';
@@ -150,7 +149,11 @@ watch(() => props.channelId, async () => {
 }, { immediate: true });
 
 function edit() {
-	router.push(`/channels/${channel.value?.id}/edit`);
+	router.push('/channels/:channelId/edit', {
+		params: {
+			channelId: props.channelId,
+		},
+	});
 }
 
 function openPostForm() {
