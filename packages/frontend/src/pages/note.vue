@@ -9,7 +9,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 		<Transition :name="prefer.s.animation ? 'fade' : ''" mode="out-in">
 			<div v-if="note">
 				<div v-if="showNext" class="_margin">
-					<MkNotesTimeline :withControl="false" :pullToRefresh="false" class="" :paginator="showNext === 'channel' ? nextChannelPaginator : nextUserPaginator" :noGap="true"/>
+					<MkNotesTimeline direction="up" :withControl="false" :pullToRefresh="false" class="" :paginator="showNext === 'channel' ? nextChannelPaginator : nextUserPaginator" :noGap="true"/>
 				</div>
 
 				<div class="_margin">
@@ -84,7 +84,6 @@ const interruptNotes = useInterruptNotes('');
 const prevUserPaginator = markRaw(new Paginator('users/notes', {
 	limit: 10,
 	initialId: props.noteId,
-	initialDirection: 'older',
 	computedParams: computed(() => note.value ? ({
 		userId: note.value.userId,
 	}) : undefined),
@@ -102,7 +101,6 @@ const nextUserPaginator = markRaw(new Paginator('users/notes', {
 const prevChannelPaginator = markRaw(new Paginator('channels/timeline', {
 	limit: 10,
 	initialId: props.noteId,
-	initialDirection: 'older',
 	computedParams: computed(() => note.value && note.value.channelId != null ? ({
 		channelId: note.value.channelId,
 	}) : undefined),
@@ -131,7 +129,7 @@ function fetchNote() {
 		noteId: props.noteId,
 	}).then(res => {
 		note.value = res;
-		const appearNote = getAppearNote(res);
+		const appearNote = getAppearNote(res) ?? res;
 		// 古いノートは被クリップ数をカウントしていないので、2023-10-01以前のものは強制的にnotes/clipsを叩く
 		if ((appearNote.clippedCount ?? 0) > 0 || new Date(appearNote.createdAt).getTime() < new Date('2023-10-01').getTime()) {
 			misskeyApi('notes/clips', {
