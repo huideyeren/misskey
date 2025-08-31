@@ -113,6 +113,7 @@ export const permissions = [
 	'write:report-abuse',
 	'write:chat',
 	'read:chat',
+	'read:admin:nirila-delete-user-log-access',
 ] as const;
 
 export const moderationLogTypes = [
