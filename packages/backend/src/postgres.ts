@@ -12,6 +12,7 @@ import { Config } from '@/config.js';
 import MisskeyLogger from '@/logger.js';
 import { bindThis } from '@/decorators.js';
 
+import { NirilaDeleteUserLog } from '@/models/NirilaDeleteUserLog.js';
 import { MiAbuseUserReport } from '@/models/AbuseUserReport.js';
 import { MiAbuseReportNotificationRecipient } from '@/models/AbuseReportNotificationRecipient.js';
 import { MiAccessToken } from '@/models/AccessToken.js';
@@ -185,6 +186,7 @@ class MyCustomLogger implements Logger {
 }
 
 export const entities = [
+	NirilaDeleteUserLog,
 	MiAnnouncement,
 	MiAnnouncementRead,
 	MiMeta,

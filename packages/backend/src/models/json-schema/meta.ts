@@ -71,6 +71,10 @@ export const packedMetaLiteSchema = {
 			type: 'string',
 			optional: false, nullable: true,
 		},
+		clientOptions: {
+			type: 'object',
+			optional: false, nullable: false,
+		},
 		disableRegistration: {
 			type: 'boolean',
 			optional: false, nullable: false,
@@ -267,6 +271,10 @@ export const packedMetaLiteSchema = {
 			type: 'string',
 			optional: false, nullable: true,
 		},
+		nsfwPolicyUrl: {
+			type: 'string',
+			optional: false, nullable: true,
+		},
 		inquiryUrl: {
 			type: 'string',
 			optional: false, nullable: true,
@@ -326,6 +334,10 @@ export const packedMetaDetailedOnlySchema = {
 					optional: false, nullable: false,
 				},
 				globalTimeline: {
+					type: 'boolean',
+					optional: false, nullable: false,
+				},
+				vmimiRelayTimeline: {
 					type: 'boolean',
 					optional: false, nullable: false,
 				},

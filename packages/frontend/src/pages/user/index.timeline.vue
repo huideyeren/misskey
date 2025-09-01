@@ -19,18 +19,21 @@ SPDX-License-Identifier: AGPL-3.0-only
 </template>
 
 <script lang="ts" setup>
-import { ref, computed, markRaw } from 'vue';
+import { ref, computed, provide, markRaw } from 'vue';
 import * as Misskey from 'misskey-js';
 import MkNotesTimeline from '@/components/MkNotesTimeline.vue';
 import MkTab from '@/components/MkTab.vue';
 import { i18n } from '@/i18n.js';
 import { Paginator } from '@/utility/paginator.js';
+import { $i } from '@/i.js';
+import { prefer } from '@/preferences.js';
 
 const props = defineProps<{
 	user: Misskey.entities.UserDetailed;
 }>();
 
 const tab = ref<string>('all');
+provide<boolean>('collapseSensitiveChannel', prefer.s.collapseSensitiveChannel);
 
 const featuredPaginator = markRaw(new Paginator('users/featured-notes', {
 	limit: 10,
@@ -47,6 +50,7 @@ const notesPaginator = markRaw(new Paginator('users/notes', {
 		withReplies: tab.value === 'all',
 		withChannelNotes: tab.value === 'all',
 		withFiles: tab.value === 'files',
+		includeSensitiveChannel: $i != null,
 	})),
 }));
 </script>

@@ -33,6 +33,7 @@ export const getNoteSummary = (note?: Misskey.entities.Note | Misskey.entities.N
 		showPoll: true,
 		showReply: true,
 		showRenote: true,
+		sensitiveChannelCW: false,
 	}, opts);
 
 	if (note == null) {

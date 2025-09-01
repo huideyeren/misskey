@@ -95,6 +95,8 @@ import { MiUserSecurityKey } from '@/models/UserSecurityKey.js';
 import { MiWebhook } from '@/models/Webhook.js';
 import type { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity.js';
 
+import { NirilaDeleteUserLog } from '@/models/NirilaDeleteUserLog.js';
+
 export interface MiRepository<T extends ObjectLiteral> {
 	createTableColumnNames(this: Repository<T> & MiRepository<T>): string[];
 
@@ -160,6 +162,8 @@ export const miRepository = {
 } satisfies MiRepository<ObjectLiteral>;
 
 export {
+	NirilaDeleteUserLog,
+
 	MiAbuseUserReport,
 	MiAbuseReportNotificationRecipient,
 	MiAccessToken,
@@ -238,6 +242,7 @@ export {
 	MiReversiGame,
 };
 
+export type NirilaDeleteUserLogRepository = Repository<NirilaDeleteUserLog> & MiRepository<NirilaDeleteUserLog>;
 export type AbuseUserReportsRepository = Repository<MiAbuseUserReport> & MiRepository<MiAbuseUserReport>;
 export type AbuseReportNotificationRecipientRepository =
 	Repository<MiAbuseReportNotificationRecipient>

@@ -79,6 +79,7 @@ export const obsoleteNotificationTypes = ['pollVote', 'groupInvited'] as const;
 export const ROLE_POLICIES = [
 	'gtlAvailable',
 	'ltlAvailable',
+	'vrtlAvailable',
 	'canPublicNote',
 	'mentionLimit',
 	'canInvite',
@@ -88,6 +89,7 @@ export const ROLE_POLICIES = [
 	'canManageCustomEmojis',
 	'canManageAvatarDecorations',
 	'canSearchNotes',
+	'canSearchUsers',
 	'canUseTranslator',
 	'canHideAds',
 	'driveCapacityMb',

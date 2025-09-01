@@ -89,12 +89,14 @@ const props = withDefaults(defineProps<{
 	withRenotes?: boolean;
 	withReplies?: boolean;
 	withSensitive?: boolean;
+	withLocalOnly?: boolean;
 	onlyFiles?: boolean;
 }>(), {
 	withRenotes: true,
-	withReplies: false,
+	withReplies: true,
 	withSensitive: true,
 	onlyFiles: false,
+	withLocalOnly: true,
 	sound: false,
 	customSound: null,
 });
@@ -143,6 +145,26 @@ if (props.src === 'antenna') {
 		computedParams: computed(() => ({
 			withRenotes: props.withRenotes,
 			withFiles: props.onlyFiles ? true : undefined,
+		})),
+		useShallowRef: true,
+	}));
+} else if (props.src === 'vmimi-relay') {
+	paginator = markRaw(new Paginator('notes/vmimi-relay-timeline', {
+		computedParams: computed(() => ({
+			withRenotes: props.withRenotes,
+			withReplies: props.withReplies,
+			withFiles: props.onlyFiles ? true : undefined,
+			withLocalOnly: props.withLocalOnly,
+		})),
+		useShallowRef: true,
+	}));
+} else if (props.src === 'vmimi-relay-social') {
+	paginator = markRaw(new Paginator('notes/vmimi-relay-hybrid-timeline', {
+		computedParams: computed(() => ({
+			withRenotes: props.withRenotes,
+			withReplies: props.withReplies,
+			withFiles: props.onlyFiles ? true : undefined,
+			withLocalOnly: props.withLocalOnly,
 		})),
 		useShallowRef: true,
 	}));
@@ -297,76 +319,115 @@ function prepend(note: Misskey.entities.Note & MisskeyEntity) {
 	}
 }
 
-let connection: Misskey.IChannelConnection | null = null;
-let connection2: Misskey.IChannelConnection | null = null;
-
 const stream = store.s.realtimeMode ? useStream() : null;
+
+const connections = {
+	antenna: null as Misskey.IChannelConnection<Misskey.Channels['antenna']> | null,
+	homeTimeline: null as Misskey.IChannelConnection<Misskey.Channels['homeTimeline']> | null,
+	localTimeline: null as Misskey.IChannelConnection<Misskey.Channels['localTimeline']> | null,
+	hybridTimeline: null as Misskey.IChannelConnection<Misskey.Channels['hybridTimeline']> | null,
+	globalTimeline: null as Misskey.IChannelConnection<Misskey.Channels['globalTimeline']> | null,
+	main: null as Misskey.IChannelConnection<Misskey.Channels['main']> | null,
+	userList: null as Misskey.IChannelConnection<Misskey.Channels['userList']> | null,
+	channel: null as Misskey.IChannelConnection<Misskey.Channels['channel']> | null,
+	roleTimeline: null as Misskey.IChannelConnection<Misskey.Channels['roleTimeline']> | null,
+	vmimiRelayTimeline: null as Misskey.IChannelConnection<Misskey.Channels['vmimiRelayTimeline']> | null,
+	vmimiRelayHybridTimeline: null as Misskey.IChannelConnection<Misskey.Channels['vmimiRelayHybridTimeline']> | null,
+};
 
 function connectChannel() {
 	if (stream == null) return;
 	if (props.src === 'antenna') {
 		if (props.antenna == null) return;
-		connection = stream.useChannel('antenna', {
+		connections.antenna = stream.useChannel('antenna', {
 			antennaId: props.antenna,
 		});
+		connections.antenna.on('note', prepend);
 	} else if (props.src === 'home') {
-		connection = stream.useChannel('homeTimeline', {
+		connections.homeTimeline = stream.useChannel('homeTimeline', {
 			withRenotes: props.withRenotes,
 			withFiles: props.onlyFiles ? true : undefined,
 		});
-		connection2 = stream.useChannel('main');
+		connections.main = stream.useChannel('main');
+		connections.homeTimeline.on('note', prepend);
 	} else if (props.src === 'local') {
-		connection = stream.useChannel('localTimeline', {
+		connections.localTimeline = stream.useChannel('localTimeline', {
 			withRenotes: props.withRenotes,
 			withReplies: props.withReplies,
 			withFiles: props.onlyFiles ? true : undefined,
 		});
+		connections.localTimeline.on('note', prepend);
 	} else if (props.src === 'social') {
-		connection = stream.useChannel('hybridTimeline', {
+		connections.hybridTimeline = stream.useChannel('hybridTimeline', {
 			withRenotes: props.withRenotes,
 			withReplies: props.withReplies,
 			withFiles: props.onlyFiles ? true : undefined,
 		});
+		connections.hybridTimeline.on('note', prepend);
 	} else if (props.src === 'global') {
-		connection = stream.useChannel('globalTimeline', {
+		connections.globalTimeline = stream.useChannel('globalTimeline', {
 			withRenotes: props.withRenotes,
 			withFiles: props.onlyFiles ? true : undefined,
 		});
+		connections.globalTimeline.on('note', prepend);
+	} else if (props.src === 'vmimi-relay') {
+		connections.vmimiRelayTimeline = stream.useChannel('vmimiRelayTimeline', {
+			withRenotes: props.withRenotes,
+			withFiles: props.onlyFiles ? true : undefined,
+			withReplies: props.withReplies,
+			withLocalOnly: props.withLocalOnly,
+		});
+		connections.vmimiRelayTimeline.on('note', prepend);
+	} else if (props.src === 'vmimi-relay-social') {
+		connections.vmimiRelayHybridTimeline = stream.useChannel('vmimiRelayHybridTimeline', {
+			withRenotes: props.withRenotes,
+			withFiles: props.onlyFiles ? true : undefined,
+			withReplies: props.withReplies,
+			withLocalOnly: props.withLocalOnly,
+		});
+		connections.vmimiRelayHybridTimeline.on('note', prepend);
 	} else if (props.src === 'mentions') {
-		connection = stream.useChannel('main');
-		connection.on('mention', prepend);
+		connections.main = stream.useChannel('main');
+		connections.main.on('mention', prepend);
 	} else if (props.src === 'directs') {
 		const onNote = note => {
 			if (note.visibility === 'specified') {
 				prepend(note);
 			}
 		};
-		connection = stream.useChannel('main');
-		connection.on('mention', onNote);
+		connections.main = stream.useChannel('main');
+		connections.main.on('mention', onNote);
 	} else if (props.src === 'list') {
 		if (props.list == null) return;
-		connection = stream.useChannel('userList', {
+		connections.userList = stream.useChannel('userList', {
 			withRenotes: props.withRenotes,
 			withFiles: props.onlyFiles ? true : undefined,
 			listId: props.list,
 		});
+		connections.userList.on('note', prepend);
 	} else if (props.src === 'channel') {
 		if (props.channel == null) return;
-		connection = stream.useChannel('channel', {
+		connections.channel = stream.useChannel('channel', {
 			channelId: props.channel,
 		});
+		connections.channel.on('note', prepend);
 	} else if (props.src === 'role') {
 		if (props.role == null) return;
-		connection = stream.useChannel('roleTimeline', {
+		connections.roleTimeline = stream.useChannel('roleTimeline', {
 			roleId: props.role,
 		});
+		connections.roleTimeline.on('note', prepend);
 	}
-	if (props.src !== 'directs' && props.src !== 'mentions') connection?.on('note', prepend);
 }
 
 function disconnectChannel() {
-	if (connection) connection.dispose();
-	if (connection2) connection2.dispose();
+	for (const key in connections) {
+		const conn = connections[key as keyof typeof connections];
+		if (conn != null) {
+			conn.dispose();
+			connections[key as keyof typeof connections] = null;
+		}
+	}
 }
 
 if (store.s.realtimeMode) {

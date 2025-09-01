@@ -112,6 +112,13 @@ type Source = {
 			enableQueryParamLogging?: boolean,
 		}
 	}
+
+	nirila?: {
+		maxWebImageSize?: number;
+		withRepliesInHomeTL?: boolean;
+		withRepliesInUserList?: boolean;
+		nsfwPolicyUrl?: string | null,
+	}
 };
 
 export type Config = {
@@ -207,6 +214,13 @@ export type Config = {
 	perUserNotificationsMaxCount: number;
 	deactivateAntennaThreshold: number;
 	pidFile: string;
+
+	nirila: {
+		maxWebImageSize?: number;
+		withRepliesInHomeTL?: boolean,
+		withRepliesInUserList: boolean,
+		nsfwPolicyUrl?: string | null,
+	}
 };
 
 export type FulltextSearchProvider = 'sqlLike' | 'sqlPgroonga' | 'meilisearch';
@@ -260,6 +274,10 @@ export function loadConfig(): Config {
 	const redis = convertRedisOptions(config.redis, host);
 
 	return {
+		// to avoid merge conflict in the future, this is at top
+		nirila: Object.assign({
+			withRepliesInUserList: true,
+		}, config.nirila ?? {}),
 		version,
 		publishTarballInsteadOfProvideRepositoryUrl: !!config.publishTarballInsteadOfProvideRepositoryUrl,
 		setupPassword: config.setupPassword,

@@ -6,6 +6,7 @@
 import { Module } from '@nestjs/common';
 import { DI } from '@/di-symbols.js';
 import {
+	NirilaDeleteUserLog,
 	MiAbuseReportNotificationRecipient,
 	MiAbuseUserReport,
 	MiAccessToken,
@@ -87,6 +88,12 @@ import {
 } from './_.js';
 import type { Provider } from '@nestjs/common';
 import type { DataSource } from 'typeorm';
+
+const $nirilaDeleteUserLogRepository: Provider = {
+	provide: DI.nirilaDeleteUserLogRepository,
+	useFactory: (db: DataSource) => db.getRepository(NirilaDeleteUserLog),
+	inject: [DI.db],
+};
 
 const $usersRepository: Provider = {
 	provide: DI.usersRepository,
@@ -547,6 +554,7 @@ const $reversiGamesRepository: Provider = {
 @Module({
 	imports: [],
 	providers: [
+		$nirilaDeleteUserLogRepository,
 		$usersRepository,
 		$notesRepository,
 		$announcementsRepository,
@@ -625,6 +633,7 @@ const $reversiGamesRepository: Provider = {
 		$reversiGamesRepository,
 	],
 	exports: [
+		$nirilaDeleteUserLogRepository,
 		$usersRepository,
 		$notesRepository,
 		$announcementsRepository,

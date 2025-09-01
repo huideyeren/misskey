@@ -67,6 +67,7 @@ export const paramDef = {
 		description: { type: 'string', nullable: true },
 		defaultLightTheme: { type: 'string', nullable: true },
 		defaultDarkTheme: { type: 'string', nullable: true },
+		clientOptions: { type: 'object', nullable: false },
 		cacheRemoteFiles: { type: 'boolean' },
 		cacheRemoteSensitiveFiles: { type: 'boolean' },
 		emailRequiredForSignup: { type: 'boolean' },
@@ -145,6 +146,7 @@ export const paramDef = {
 		manifestJsonOverride: { type: 'string' },
 		enableFanoutTimeline: { type: 'boolean' },
 		enableFanoutTimelineDbFallback: { type: 'boolean' },
+		vmimiRelayTimelineCacheMax: { type: 'integer' },
 		perLocalUserUserTimelineCacheMax: { type: 'integer' },
 		perRemoteUserUserTimelineCacheMax: { type: 'integer' },
 		perUserHomeTimelineCacheMax: { type: 'integer' },
@@ -208,6 +210,15 @@ export const paramDef = {
 		enableRemoteNotesCleaning: { type: 'boolean' },
 		remoteNotesCleaningExpiryDaysForEachNotes: { type: 'number' },
 		remoteNotesCleaningMaxProcessingDurationInMinutes: { type: 'number' },
+		nirilaBlockMentionsFromUnfamiliarRemoteUsers: { type: 'boolean', nullable: false },
+		nirilaAllowedUnfamiliarRemoteUserIds: {
+			type: 'array',
+			nullable: false,
+			items: {
+				type: 'string',
+				nullable: false,
+			},
+		},
 	},
 	required: [],
 } as const;
@@ -324,6 +335,10 @@ export default class extends Endpoint<typeof meta, typeof paramDef> { // eslint-
 
 			if (ps.defaultDarkTheme !== undefined) {
 				set.defaultDarkTheme = ps.defaultDarkTheme;
+			}
+
+			if (ps.clientOptions !== undefined) {
+				set.clientOptions = ps.clientOptions;
 			}
 
 			if (ps.cacheRemoteFiles !== undefined) {
@@ -640,6 +655,10 @@ export default class extends Endpoint<typeof meta, typeof paramDef> { // eslint-
 				set.perLocalUserUserTimelineCacheMax = ps.perLocalUserUserTimelineCacheMax;
 			}
 
+			if (ps.vmimiRelayTimelineCacheMax !== undefined) {
+				set.vmimiRelayTimelineCacheMax = ps.vmimiRelayTimelineCacheMax;
+			}
+
 			if (ps.perRemoteUserUserTimelineCacheMax !== undefined) {
 				set.perRemoteUserUserTimelineCacheMax = ps.perRemoteUserUserTimelineCacheMax;
 			}
@@ -736,6 +755,14 @@ export default class extends Endpoint<typeof meta, typeof paramDef> { // eslint-
 
 			if (ps.remoteNotesCleaningMaxProcessingDurationInMinutes !== undefined) {
 				set.remoteNotesCleaningMaxProcessingDurationInMinutes = ps.remoteNotesCleaningMaxProcessingDurationInMinutes;
+			}
+
+			if (ps.nirilaBlockMentionsFromUnfamiliarRemoteUsers !== undefined) {
+				set.nirilaBlockMentionsFromUnfamiliarRemoteUsers = ps.nirilaBlockMentionsFromUnfamiliarRemoteUsers;
+			}
+
+			if (ps.nirilaAllowedUnfamiliarRemoteUserIds !== undefined) {
+				set.nirilaAllowedUnfamiliarRemoteUserIds = ps.nirilaAllowedUnfamiliarRemoteUserIds;
 			}
 
 			const before = await this.metaService.fetch(true);

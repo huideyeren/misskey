@@ -32,6 +32,8 @@ export type SoundStore = {
 	volume: number;
 };
 
+type OmitStrict<T, K extends keyof T> = T extends any ? Pick<T, Exclude<keyof T, K>> : never;
+
 // NOTE: デフォルト値は他の設定の状態に依存してはならない(依存していた場合、ユーザーがその設定項目単体で「初期値にリセット」した場合不具合の原因になる)
 
 export const PREF_DEF = definePreferences({
@@ -154,6 +156,9 @@ export const PREF_DEF = definePreferences({
 	keepCw: {
 		default: true,
 	},
+	keepOriginalUploading: {
+		default: false,
+	},
 	rememberNoteVisibility: {
 		default: false,
 	},
@@ -194,6 +199,9 @@ export const PREF_DEF = definePreferences({
 	},
 	nsfw: {
 		default: 'respect' as 'respect' | 'force' | 'ignore',
+	},
+	collapseSensitiveChannel: {
+		default: true,
 	},
 	highlightSensitiveMedia: {
 		default: false,
@@ -345,6 +353,18 @@ export const PREF_DEF = definePreferences({
 	useNativeUiForVideoAudioPlayer: {
 		default: false,
 	},
+	// For historical reasons and serialization problems, imageCompressionMode and imageResizeSize
+	// will represent one value together.
+	// The 'Compress' or 'CompressLossy' part of imageCompressionMode will represent whether the image will be compressed losslessly or lossy for lossless images.
+	// The 'resize' or 'noResize' part of imageCompressionMode and imageResizeSize will represent the target size of the image.
+	//   If imageCompressionMode starts with 'noResize', the target size will be positive infinity, iow no resizing will be done.
+	//   If imageCompressionMode starts with 'resize', the target size will be imageResize
+	imageCompressionMode: {
+		default: 'noResizeCompress' as 'resizeCompress' | 'noResizeCompress' | 'resizeCompressLossy' | 'noResizeCompressLossy',
+	},
+	imageResizeSize: {
+		default: 2560,
+	},
 	keepOriginalFilename: {
 		default: true,
 	},
@@ -367,7 +387,7 @@ export const PREF_DEF = definePreferences({
 		default: false,
 	},
 	defaultFollowWithReplies: {
-		default: false,
+		default: true,
 	},
 	makeEveryTextElementsSelectable: {
 		default: DEFAULT_DEVICE_KIND === 'desktop',
@@ -385,7 +405,7 @@ export const PREF_DEF = definePreferences({
 		default: false,
 	},
 	plugins: {
-		default: [] as Plugin[],
+		default: [] as (OmitStrict<Plugin, 'config'> & { config: Record<string, any> })[],
 		mergeStrategy: (a, b) => {
 			const sameIdExists = a.some(x => b.some(y => x.installId === y.installId));
 			if (sameIdExists) throw new Error();
@@ -424,9 +444,12 @@ export const PREF_DEF = definePreferences({
 		accountDependent: true,
 		default: null as WatermarkPreset['id'] | null,
 	},
+	// This fork does not use defaultImageCompressionLevel, use imageCompressionMode and imageResizeSize instead
+	/*
 	defaultImageCompressionLevel: {
 		default: 2 as 0 | 1 | 2 | 3,
 	},
+	 */
 
 	'sound.masterVolume': {
 		default: 0.5,

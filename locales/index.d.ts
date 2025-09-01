@@ -235,6 +235,10 @@ export interface Locale extends ILocale {
      */
     "deleteAndEditConfirm": string;
     /**
+     * ホーム投稿にする
+     */
+    "makeNoteHome": string;
+    /**
      * リストに追加
      */
     "addToList": string;
@@ -526,6 +530,10 @@ export interface Locale extends ILocale {
      * センシティブ
      */
     "sensitive": string;
+    /**
+     * センシティブチャンネル自動CW
+     */
+    "sensitiveChannelAutoCW": string;
     /**
      * 追加
      */
@@ -1018,6 +1026,10 @@ export interface Locale extends ILocale {
      * このノートを削除しますか？
      */
     "noteDeleteConfirm": string;
+    /**
+     * 本当にホーム投稿にしますか？
+     */
+    "makeNoteHomeConfirm": string;
     /**
      * これ以上ピン留めできません
      */
@@ -3347,6 +3359,10 @@ export interface Locale extends ILocale {
      */
     "useReactionPickerForContextMenu": string;
     /**
+     * ユーザページでセンシティブチャンネルの投稿を閉じる
+     */
+    "collapseSensitiveChannel": string;
+    /**
      * {users}が入力中
      */
     "typingUsers": ParameterizedString<"users">;
@@ -4891,6 +4907,10 @@ export interface Locale extends ILocale {
      */
     "hideRepliesToOthersInTimelineAll": string;
     /**
+     * TLに連合なし投稿を含める
+     */
+    "showLocalOnlyInTimeline": string;
+    /**
      * この操作は元に戻せません。本当にTLに現在フォロー中の人全員の返信を含めるようにしますか？
      */
     "confirmShowRepliesAll": string;
@@ -5001,7 +5021,7 @@ export interface Locale extends ILocale {
     /**
      * メールアドレスの確認中に問題が発生しました。リンクの有効期限が切れている可能性があります。
      */
-    "signupPendingError": string;
+    "emailVerificationFailedError": string;
     /**
      * 「内容を隠す」がオンの場合は注釈の記述が必要です。
      */
@@ -5098,6 +5118,10 @@ export interface Locale extends ILocale {
      * {name}のセンシティブなファイルを含む投稿
      */
     "userSaysSomethingSensitive": ParameterizedString<"name">;
+    /**
+     * {name}のセンシティブチャンネルでの投稿
+     */
+    "userSaysSomethingInSensitiveChannel": ParameterizedString<"name">;
     /**
      * スワイプしてタブを切り替える
      */
@@ -6470,6 +6494,14 @@ export interface Locale extends ILocale {
          * グローバルタイムラインでは、接続している他のすべてのサーバーからの投稿を見られます。
          */
         "global": string;
+        /**
+         * ぶいみみリレータイムラインでは、バーチャルケモミミリレーサーバーに参加しているサーバーのユーザー全員の投稿を見られます。
+         */
+        "vmimi-relay": string;
+        /**
+         * ぶいみみソーシャルタイムラインには、ホームタイムラインとぶいみみリレータイムラインの投稿が両方表示されます。
+         */
+        "vmimi-relay-social": string;
     };
     "_serverRules": {
         /**
@@ -6531,7 +6563,7 @@ export interface Locale extends ILocale {
          */
         "remoteNotesCleaning": string;
         /**
-         * 有効にすると、参照されていない古いリモートの投稿を定期的にクリーンアップしてデータベースの肥大化を抑制します。
+         * 有効にすると、一定期間経過したリモートの投稿を定期的にクリーンアップしてデータベースの肥大化を抑制します。
          */
         "remoteNotesCleaning_description": string;
         /**
@@ -6622,6 +6654,18 @@ export interface Locale extends ILocale {
          * 現在の一部の設定はリセットされます。
          */
         "restartServerSetupWizardConfirm_text": string;
+        /**
+         * エントランスページのスタイル
+         */
+        "entrancePageStyle": string;
+        /**
+         * タイムラインを表示する
+         */
+        "showTimelineForVisitor": string;
+        /**
+         * アクティビティを表示する
+         */
+        "showActivitiesForVisitor": string;
         "_userGeneratedContentsVisibilityForVisitor": {
             /**
              * 全て公開
@@ -7716,6 +7760,10 @@ export interface Locale extends ILocale {
              */
             "ltlAvailable": string;
             /**
+             * ぶいみみリレータイムラインの閲覧
+             */
+            "vrtlAvailable": string;
+            /**
              * パブリック投稿の許可
              */
             "canPublicNote": string;
@@ -8296,6 +8344,14 @@ export interface Locale extends ILocale {
          * プロジェクトメンバー
          */
         "projectMembers": string;
+        /**
+         * このサーバーで使用しているforkの主要な開発者
+         */
+        "forkContributors": string;
+        /**
+         * このサーバーで使用しているforkの全てのコントリビューター
+         */
+        "allForkContributors": string;
     };
     "_displayOfSensitiveMedia": {
         /**
@@ -9954,6 +10010,14 @@ export interface Locale extends ILocale {
          * グローバル
          */
         "global": string;
+        /**
+         * ぶいみみリレー
+         */
+        "vmimi-relay": string;
+        /**
+         * ぶいみみソーシャル
+         */
+        "vmimi-relay-social": string;
     };
     "_play": {
         /**
@@ -10739,6 +10803,48 @@ export interface Locale extends ILocale {
             "deleteConfirm": string;
         };
     };
+    "_imageCompressionMode": {
+        /**
+         * 画像圧縮のデフォルト設定
+         */
+        "title": string;
+        /**
+         * アップロードする画像の圧縮方法のデフォルト設定を選択します。
+         */
+        "description": string;
+        /**
+         * 画像の最大解像度
+         */
+        "maxImageResolution": string;
+        /**
+         * アップロードする画像の最大解像度を選択します。もし画像の解像度が設定値を超える場合、この設定に従って縮小されます。
+         */
+        "maxImageResolutionDescription": string;
+        /**
+         * 画像を常に非可逆圧縮する
+         */
+        "compressImageLossy": string;
+        /**
+         * 非可逆圧縮するかどうかを選択します。非可逆圧縮はファイルサイズを小さくできますが、画質が劣化します。
+         */
+        "compressImageLossyDescription": string;
+        /**
+         * 解像度: {size}x{size} 以下
+         */
+        "imageResizeTargetSized": ParameterizedString<"size" | "size">;
+        /**
+         * 画像の大きさ: 無制限
+         */
+        "imageResizeTargetUnlimited": string;
+        /**
+         * 非可逆圧縮を使用する
+         */
+        "compressLossy": string;
+        /**
+         * 無制限
+         */
+        "unlimitedResolution": string;
+    };
     "_moderationLogTypes": {
         /**
          * ロールを作成
@@ -10940,6 +11046,10 @@ export interface Locale extends ILocale {
          * プロキシアカウントの説明を更新
          */
         "updateProxyAccountDescription": string;
+        /**
+         * ノートをホーム投稿に変更
+         */
+        "makeNoteHome": string;
     };
     "_fileViewer": {
         /**
@@ -12020,11 +12130,11 @@ export interface Locale extends ILocale {
          */
         "youCanConfigureMoreFederationSettingsLater": string;
         /**
-         * 受信コンテンツの自動クリーニング
+         * リモートコンテンツの自動クリーニング
          */
         "remoteContentsCleaning": string;
         /**
-         * 連合を行うと、継続して多くのコンテンツを受信します。自動クリーニングを有効にすると、参照されていない古くなったコンテンツを自動でサーバーから削除し、ストレージを節約できます。
+         * 連合を行うと、継続して多くのコンテンツを受信します。自動クリーニングを有効にすると、一定期間経過したリモートコンテンツを自動でサーバーから削除し、ストレージを節約できます。
          */
         "remoteContentsCleaning_description": string;
         /**
