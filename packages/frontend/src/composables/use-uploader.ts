@@ -44,12 +44,22 @@ const IMAGE_EDITING_SUPPORTED_TYPES = [
 	'image/webp',
 ];
 
+const VIDEO_COMPRESSION_SUPPORTED_TYPES = [ // TODO
+	'video/mp4',
+	'video/quicktime',
+	'video/x-matroska',
+];
+
 const WATERMARK_SUPPORTED_TYPES = IMAGE_EDITING_SUPPORTED_TYPES;
 
 const IMAGE_PREPROCESS_NEEDED_TYPES = [
 	...WATERMARK_SUPPORTED_TYPES,
 	...IMAGE_COMPRESSION_SUPPORTED_TYPES,
 	...IMAGE_EDITING_SUPPORTED_TYPES,
+];
+
+const VIDEO_PREPROCESS_NEEDED_TYPES = [
+	...VIDEO_COMPRESSION_SUPPORTED_TYPES,
 ];
 
 const mimeTypeMap = {
@@ -65,6 +75,7 @@ export type UploaderItem = {
 	progress: { max: number; value: number } | null;
 	thumbnail: string | null;
 	preprocessing: boolean;
+	preprocessProgress: number | null;
 	uploading: boolean;
 	uploaded: Misskey.entities.DriveFile | null;
 	uploadFailed: boolean;
@@ -76,7 +87,7 @@ export type UploaderItem = {
 	// compress: always recompress the image losslessly
 	compressMode: 'lossyWhenResize' | 'lossy' | 'lossless';
 	imageResizeSize: number;
-	//compressionLevel: 0 | 1 | 2 | 3;
+	compressionLevel: 0 | 1 | 2 | 3; // for video. for image, use imageResizeSize and compressMode instead
 	compressedSize?: number | null;
 	preprocessedFile?: Blob | null;
 	file: File;
@@ -84,6 +95,7 @@ export type UploaderItem = {
 	isSensitive?: boolean;
 	caption?: string | null;
 	abort?: (() => void) | null;
+	abortPreprocess?: (() => void) | null;
 };
 
 function getCompressionSettings(level: 0 | 1 | 2 | 3) {
@@ -195,6 +207,7 @@ export function useUploader(options: {
 			progress: null,
 			thumbnail: THUMBNAIL_SUPPORTED_TYPES.includes(file.type) ? window.URL.createObjectURL(file) : null,
 			preprocessing: false,
+			preprocessProgress: null,
 			uploading: false,
 			aborted: false,
 			uploaded: null,
@@ -204,7 +217,7 @@ export function useUploader(options: {
 				? (prefer.s.imageCompressionMode.endsWith('CompressLossy') ? 'lossy' : 'lossless')
 				: 'lossyWhenResize', // for lossy images, we only compress when resizing
 			imageResizeSize: prefer.s.imageCompressionMode.startsWith('resize') ? prefer.s.imageResizeSize : Number.POSITIVE_INFINITY,
-			//compressionLevel: prefer.s.defaultImageCompressionLevel,
+			compressionLevel: VIDEO_COMPRESSION_SUPPORTED_TYPES.includes(file.type) ? prefer.s.defaultVideoCompressionLevel : 0,
 			watermarkPresetId: uploaderFeatures.value.watermark && $i.policies.watermarkAvailable ? prefer.s.defaultWatermarkPresetId : null,
 			file: markRaw(file),
 		});
@@ -389,7 +402,7 @@ export function useUploader(options: {
 		}
 
 		if (
-			IMAGE_COMPRESSION_SUPPORTED_TYPES.includes(item.file.type) &&
+			(IMAGE_COMPRESSION_SUPPORTED_TYPES.includes(item.file.type)) &&
 			!item.preprocessing &&
 			!item.uploading &&
 			!item.uploaded
@@ -447,8 +460,14 @@ export function useUploader(options: {
 					action: () => changeImageResizeSize(size),
 				} satisfies MenuItem))],
 			});
+		}
 
-			/*
+		if (
+			(VIDEO_COMPRESSION_SUPPORTED_TYPES.includes(item.file.type)) &&
+			!item.preprocessing &&
+			!item.uploading &&
+			!item.uploaded
+		) {
 			function changeCompressionLevel(level: 0 | 1 | 2 | 3) {
 				item.compressionLevel = level;
 				preprocess(item).then(() => {
@@ -498,7 +517,6 @@ export function useUploader(options: {
 					action: () => changeCompressionLevel(3),
 				}],
 			});
-			 */
 		}
 
 		if (!item.preprocessing && !item.uploading && !item.uploaded) {
@@ -516,6 +534,19 @@ export function useUploader(options: {
 				danger: true,
 				action: () => {
 					removeItem(item);
+				},
+			});
+		} else if (item.preprocessing && item.abortPreprocess != null) {
+			menu.push({
+				type: 'divider',
+			}, {
+				icon: 'ti ti-player-stop',
+				text: i18n.ts.abort,
+				danger: true,
+				action: () => {
+					if (item.abortPreprocess != null) {
+						item.abortPreprocess();
+					}
 				},
 			});
 		} else if (item.uploading) {
@@ -601,6 +632,10 @@ export function useUploader(options: {
 				continue;
 			}
 
+			if (item.abortPreprocess != null) {
+				item.abortPreprocess();
+			}
+
 			if (item.abort != null) {
 				item.abort();
 			}
@@ -611,18 +646,30 @@ export function useUploader(options: {
 
 	async function preprocess(item: UploaderItem): Promise<void> {
 		item.preprocessing = true;
+		item.preprocessProgress = null;
 
-		try {
-			if (IMAGE_PREPROCESS_NEEDED_TYPES.includes(item.file.type)) {
+		if (IMAGE_PREPROCESS_NEEDED_TYPES.includes(item.file.type)) {
+			try {
 				await preprocessForImage(item);
-			}
-		} catch (err) {
-			console.error('Failed to preprocess image', err);
+			} catch (err) {
+				console.error('Failed to preprocess image', err);
 
 			// nop
+			}
+		}
+
+		if (VIDEO_PREPROCESS_NEEDED_TYPES.includes(item.file.type)) {
+			try {
+				await preprocessForVideo(item);
+			} catch (err) {
+				console.error('Failed to preprocess video', err);
+
+				// nop
+			}
 		}
 
 		item.preprocessing = false;
+		item.preprocessProgress = null;
 	}
 
 	async function preprocessForImage(item: UploaderItem): Promise<void> {
@@ -707,10 +754,74 @@ export function useUploader(options: {
 		item.preprocessedFile = markRaw(preprocessedFile);
 	}
 
-	onUnmounted(() => {
+	async function preprocessForVideo(item: UploaderItem): Promise<void> {
+		let preprocessedFile: Blob | File = item.file;
+
+		const needsCompress = item.compressionLevel !== 0 && VIDEO_COMPRESSION_SUPPORTED_TYPES.includes(preprocessedFile.type);
+
+		if (needsCompress) {
+			const mediabunny = await import('mediabunny');
+
+			const source = new mediabunny.BlobSource(preprocessedFile);
+
+			const input = new mediabunny.Input({
+				source,
+				formats: mediabunny.ALL_FORMATS,
+			});
+
+			const output = new mediabunny.Output({
+				target: new mediabunny.BufferTarget(),
+				format: new mediabunny.Mp4OutputFormat(),
+			});
+
+			const currentConversion = await mediabunny.Conversion.init({
+				input,
+				output,
+				video: {
+					//width: 320, // Height will be deduced automatically to retain aspect ratio
+					bitrate: item.compressionLevel === 1 ? mediabunny.QUALITY_VERY_HIGH : item.compressionLevel === 2 ? mediabunny.QUALITY_MEDIUM : mediabunny.QUALITY_VERY_LOW,
+				},
+				audio: {
+					bitrate: item.compressionLevel === 1 ? mediabunny.QUALITY_VERY_HIGH : item.compressionLevel === 2 ? mediabunny.QUALITY_MEDIUM : mediabunny.QUALITY_VERY_LOW,
+				},
+			});
+
+			currentConversion.onProgress = newProgress => item.preprocessProgress = newProgress;
+
+			item.abortPreprocess = () => {
+				item.abortPreprocess = null;
+				currentConversion.cancel();
+				item.preprocessing = false;
+				item.preprocessProgress = null;
+			};
+
+			await currentConversion.execute();
+
+			item.abortPreprocess = null;
+
+			preprocessedFile = new Blob([output.target.buffer!], { type: output.format.mimeType });
+			item.compressedSize = output.target.buffer!.byteLength;
+			item.uploadName = `${item.name}.mp4`;
+		} else {
+			item.compressedSize = null;
+			item.uploadName = item.name;
+		}
+
+		if (item.thumbnail != null) URL.revokeObjectURL(item.thumbnail);
+		item.thumbnail = THUMBNAIL_SUPPORTED_TYPES.includes(preprocessedFile.type) ? window.URL.createObjectURL(preprocessedFile) : null;
+		item.preprocessedFile = markRaw(preprocessedFile);
+	}
+
+	function dispose() {
 		for (const item of items.value) {
 			if (item.thumbnail != null) URL.revokeObjectURL(item.thumbnail);
 		}
+
+		abortAll();
+	}
+
+	onUnmounted(() => {
+		dispose();
 	});
 
 	return {
@@ -718,6 +829,7 @@ export function useUploader(options: {
 		addFiles,
 		removeItem,
 		abortAll,
+		dispose,
 		upload,
 		getMenu,
 		uploading: computed(() => items.value.some(item => item.uploading)),
