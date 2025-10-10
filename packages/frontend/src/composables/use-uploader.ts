@@ -87,7 +87,7 @@ export type UploaderItem = {
 	// compress: always recompress the image losslessly
 	compressMode: 'lossyWhenResize' | 'lossy' | 'lossless';
 	imageResizeSize: number;
-	//compressionLevel: 0 | 1 | 2 | 3;
+	compressionLevel: 0 | 1 | 2 | 3; // for video. for image, use imageResizeSize and compressMode instead
 	compressedSize?: number | null;
 	preprocessedFile?: Blob | null;
 	file: File;
@@ -217,7 +217,7 @@ export function useUploader(options: {
 				? (prefer.s.imageCompressionMode.endsWith('CompressLossy') ? 'lossy' : 'lossless')
 				: 'lossyWhenResize', // for lossy images, we only compress when resizing
 			imageResizeSize: prefer.s.imageCompressionMode.startsWith('resize') ? prefer.s.imageResizeSize : Number.POSITIVE_INFINITY,
-			//compressionLevel: IMAGE_COMPRESSION_SUPPORTED_TYPES.includes(file.type) ? prefer.s.defaultImageCompressionLevel : VIDEO_COMPRESSION_SUPPORTED_TYPES.includes(file.type) ? prefer.s.defaultVideoCompressionLevel : 0,
+			compressionLevel: VIDEO_COMPRESSION_SUPPORTED_TYPES.includes(file.type) ? prefer.s.defaultVideoCompressionLevel : 0,
 			watermarkPresetId: uploaderFeatures.value.watermark && $i.policies.watermarkAvailable ? prefer.s.defaultWatermarkPresetId : null,
 			file: markRaw(file),
 		});
@@ -402,7 +402,7 @@ export function useUploader(options: {
 		}
 
 		if (
-			(IMAGE_COMPRESSION_SUPPORTED_TYPES.includes(item.file.type) || VIDEO_COMPRESSION_SUPPORTED_TYPES.includes(item.file.type)) &&
+			(IMAGE_COMPRESSION_SUPPORTED_TYPES.includes(item.file.type)) &&
 			!item.preprocessing &&
 			!item.uploading &&
 			!item.uploaded
@@ -460,8 +460,14 @@ export function useUploader(options: {
 					action: () => changeImageResizeSize(size),
 				} satisfies MenuItem))],
 			});
+		}
 
-			/*
+		if (
+			(VIDEO_COMPRESSION_SUPPORTED_TYPES.includes(item.file.type)) &&
+			!item.preprocessing &&
+			!item.uploading &&
+			!item.uploaded
+		) {
 			function changeCompressionLevel(level: 0 | 1 | 2 | 3) {
 				item.compressionLevel = level;
 				preprocess(item).then(() => {
@@ -511,7 +517,6 @@ export function useUploader(options: {
 					action: () => changeCompressionLevel(3),
 				}],
 			});
-			 */
 		}
 
 		if (!item.preprocessing && !item.uploading && !item.uploaded) {
