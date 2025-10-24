@@ -9501,6 +9501,7 @@ export interface operations {
                         enableRemoteNotesCleaning: boolean;
                         remoteNotesCleaningExpiryDaysForEachNotes: number;
                         remoteNotesCleaningMaxProcessingDurationInMinutes: number;
+                        showRoleBadgesOfRemoteUsers: boolean;
                         nirilaBlockMentionsFromUnfamiliarRemoteUsers: boolean;
                         nirilaAllowedUnfamiliarRemoteUserIds: string[];
                     };
@@ -12960,6 +12961,7 @@ export interface operations {
                     enableRemoteNotesCleaning?: boolean;
                     remoteNotesCleaningExpiryDaysForEachNotes?: number;
                     remoteNotesCleaningMaxProcessingDurationInMinutes?: number;
+                    showRoleBadgesOfRemoteUsers?: boolean;
                     nirilaBlockMentionsFromUnfamiliarRemoteUsers?: boolean;
                     nirilaAllowedUnfamiliarRemoteUserIds?: string[];
                 };
