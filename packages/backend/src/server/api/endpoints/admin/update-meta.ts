@@ -210,6 +210,7 @@ export const paramDef = {
 		enableRemoteNotesCleaning: { type: 'boolean' },
 		remoteNotesCleaningExpiryDaysForEachNotes: { type: 'number' },
 		remoteNotesCleaningMaxProcessingDurationInMinutes: { type: 'number' },
+		showRoleBadgesOfRemoteUsers: { type: 'boolean' },
 		nirilaBlockMentionsFromUnfamiliarRemoteUsers: { type: 'boolean', nullable: false },
 		nirilaAllowedUnfamiliarRemoteUserIds: {
 			type: 'array',
@@ -755,6 +756,10 @@ export default class extends Endpoint<typeof meta, typeof paramDef> { // eslint-
 
 			if (ps.remoteNotesCleaningMaxProcessingDurationInMinutes !== undefined) {
 				set.remoteNotesCleaningMaxProcessingDurationInMinutes = ps.remoteNotesCleaningMaxProcessingDurationInMinutes;
+			}
+
+			if (ps.showRoleBadgesOfRemoteUsers !== undefined) {
+				set.showRoleBadgesOfRemoteUsers = ps.showRoleBadgesOfRemoteUsers;
 			}
 
 			if (ps.nirilaBlockMentionsFromUnfamiliarRemoteUsers !== undefined) {
