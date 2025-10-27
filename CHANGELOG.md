@@ -1,4 +1,5 @@
-## 2025.10.2
+## 2025.10.2-kinel.1
+## 2025.10.2 (merged to 2025.10.2-kinel.1)
 No New Changes
 
 ## 2025.10.1-kinel.2

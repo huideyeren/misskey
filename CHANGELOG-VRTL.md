@@ -4,6 +4,7 @@ VRTLのブランチで行われた変更点をまとめています
 
 <!-- VV Please add changelog here VV -->
 
+--- 2025.10.2-kinel.1 released at this time ---
 --- 2025.10.1-kinel.2 released at this time ---
 --- 2025.10.1-kinel.1 released at this time ---
 --- 2025.10.0-kinel.1 released at this time ---
