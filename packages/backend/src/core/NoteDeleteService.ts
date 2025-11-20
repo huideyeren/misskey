@@ -3,10 +3,12 @@
  * SPDX-License-Identifier: AGPL-3.0-only
  */
 
-import { Brackets, In, IsNull, Not } from 'typeorm';
+import { Brackets, DataSource, In, IsNull, Not } from 'typeorm';
 import { Injectable, Inject } from '@nestjs/common';
 import type { MiUser, MiLocalUser, MiRemoteUser } from '@/models/User.js';
-import type { MiNote, IMentionedRemoteUsers } from '@/models/Note.js';
+import { MiNote } from '@/models/Note.js';
+import { MiDeletedNote } from '@/models/DeletedNote.js';
+import type { IMentionedRemoteUsers } from '@/models/Note.js';
 import type { InstancesRepository, MiMeta, NotesRepository, UsersRepository } from '@/models/_.js';
 import { RelayService } from '@/core/RelayService.js';
 import { FederatedInstanceService } from '@/core/FederatedInstanceService.js';
@@ -29,6 +31,9 @@ export class NoteDeleteService {
 	constructor(
 		@Inject(DI.config)
 		private config: Config,
+
+		@Inject(DI.db)
+		private db: DataSource,
 
 		@Inject(DI.meta)
 		private meta: MiMeta,
@@ -62,7 +67,6 @@ export class NoteDeleteService {
 	 */
 	async delete(user: { id: MiUser['id']; uri: MiUser['uri']; host: MiUser['host']; isBot: MiUser['isBot']; }, note: MiNote, quiet = false, deleter?: MiUser) {
 		const deletedAt = new Date();
-		const cascadingNotes = await this.findCascadingNotes(note);
 
 		if (note.replyId) {
 			await this.notesRepository.decrement({ id: note.replyId }, 'repliesCount', 1);
@@ -90,15 +94,6 @@ export class NoteDeleteService {
 
 				this.deliverToConcerned(user, note, content);
 			}
-
-			// also deliver delete activity to cascaded notes
-			const federatedLocalCascadingNotes = (cascadingNotes).filter(note => !note.localOnly && note.userHost == null); // filter out local-only notes
-			for (const cascadingNote of federatedLocalCascadingNotes) {
-				if (!cascadingNote.user) continue;
-				if (!this.userEntityService.isLocalUser(cascadingNote.user)) continue;
-				const content = this.apRendererService.addContext(this.apRendererService.renderDelete(this.apRendererService.renderTombstone(`${this.config.url}/notes/${cascadingNote.id}`), cascadingNote.user));
-				this.deliverToConcerned(cascadingNote.user, cascadingNote, content);
-			}
 			//#endregion
 
 			this.notesChart.update(note, false);
@@ -118,14 +113,26 @@ export class NoteDeleteService {
 			}
 		}
 
-		for (const cascadingNote of cascadingNotes) {
-			this.searchService.unindexNote(cascadingNote);
-		}
 		this.searchService.unindexNote(note);
 
-		await this.notesRepository.delete({
-			id: note.id,
-			userId: user.id,
+		await this.db.transaction(async transaction => {
+			await transaction.delete(MiNote, {
+				id: note.id,
+				userId: user.id,
+			});
+			await transaction.save(MiDeletedNote, {
+				id: note.id,
+				deletedAt: new Date(),
+				replyId: note.replyId,
+				renoteId: note.renoteId,
+				userId: note.userId,
+				localOnly: note.localOnly,
+				uri: note.uri,
+				url: note.url,
+				channelId: note.channelId,
+				replyUserId: note.replyUserId,
+				renoteUserId: note.renoteUserId,
+			});
 		});
 
 		if (deleter && (note.userId !== deleter.id)) {
@@ -138,29 +145,6 @@ export class NoteDeleteService {
 				note: note,
 			});
 		}
-	}
-
-	@bindThis
-	private async findCascadingNotes(note: MiNote): Promise<MiNote[]> {
-		const recursive = async (noteId: string): Promise<MiNote[]> => {
-			const query = this.notesRepository.createQueryBuilder('note')
-				.where('note.replyId = :noteId', { noteId })
-				.orWhere(new Brackets(q => {
-					q.where('note.renoteId = :noteId', { noteId })
-						.andWhere('note.text IS NOT NULL');
-				}))
-				.leftJoinAndSelect('note.user', 'user');
-			const replies = await query.getMany();
-
-			return [
-				replies,
-				...await Promise.all(replies.map(reply => recursive(reply.id))),
-			].flat();
-		};
-
-		const cascadingNotes: MiNote[] = await recursive(note.id);
-
-		return cascadingNotes;
 	}
 
 	@bindThis

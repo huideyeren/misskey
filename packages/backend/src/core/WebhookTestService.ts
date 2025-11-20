@@ -85,6 +85,7 @@ function generateDummyNote(override?: Partial<MiNote>): MiNote {
 		renoteCount: 10,
 		repliesCount: 5,
 		clippedCount: 0,
+		pageCount: 0,
 		reactions: {},
 		visibility: 'public',
 		uri: null,
@@ -243,7 +244,6 @@ export class WebhookTestService {
 			case 'reaction':
 				return;
 			default: {
-				// eslint-disable-next-line @typescript-eslint/no-unused-vars
 				const _exhaustiveAssertion: never = params.type;
 				return;
 			}
@@ -339,7 +339,6 @@ export class WebhookTestService {
 					});
 					return;
 				}
-				// eslint-disable-next-line @typescript-eslint/no-unused-vars
 				const _exhaustiveAssertion: never = params.type;
 				return;
 			}
@@ -424,7 +423,7 @@ export class WebhookTestService {
 			name: user.name,
 			username: user.username,
 			host: user.host,
-			avatarUrl: user.avatarId == null ? null : user.avatarUrl,
+			avatarUrl: (user.avatarId == null ? null : user.avatarUrl) ?? '',
 			avatarBlurhash: user.avatarId == null ? null : user.avatarBlurhash,
 			avatarDecorations: user.avatarDecorations.map(it => ({
 				id: it.id,
