@@ -15,10 +15,8 @@ SPDX-License-Identifier: AGPL-3.0-only
 		</MkInput>
 		<MkSwitch v-model="props.modelValue.detailed"><span>{{ i18n.ts._pages.blocks._note.detailed }}</span></MkSwitch>
 
-		<template v-for="appearNote in interruptNotes(note == null ? [] : [note])" :key="appearNote.id">
-			<MkNote v-if="!props.modelValue.detailed" :key="appearNote.id + ':normal'" :note="appearNote" style="margin-bottom: 16px;"/>
-			<MkNoteDetailed v-if="props.modelValue.detailed" :key="appearNote.id + ':detail'" :note="appearNote" style="margin-bottom: 16px;"/>
-		</template>
+		<MkNote v-if="note && !props.modelValue.detailed" :key="note.id + ':normal'" v-model:note="note" style="margin-bottom: 16px;"/>
+		<MkNoteDetailed v-if="note && props.modelValue.detailed" :key="note.id + ':detail'" v-model:note="note" style="margin-bottom: 16px;"/>
 	</section>
 </XContainer>
 </template>
@@ -34,7 +32,6 @@ import MkNote from '@/components/MkNote.vue';
 import MkNoteDetailed from '@/components/MkNoteDetailed.vue';
 import { misskeyApi } from '@/utility/misskey-api.js';
 import { i18n } from '@/i18n.js';
-import { useInterruptNotes } from '@/composables/use-interrupt-notes';
 
 const props = defineProps<{
 	modelValue: Misskey.entities.PageBlock & { type: 'note' };
@@ -42,12 +39,11 @@ const props = defineProps<{
 
 const emit = defineEmits<{
 	(ev: 'update:modelValue', value: Misskey.entities.PageBlock & { type: 'note' }): void;
+	(ev: 'remove'): void;
 }>();
 
 const id = ref(props.modelValue.note);
 const note = ref<Misskey.entities.Note | null>(null);
-
-const interruptNotes = useInterruptNotes('');
 
 watch(id, async () => {
 	if (id.value && (id.value.startsWith('http://') || id.value.startsWith('https://'))) {

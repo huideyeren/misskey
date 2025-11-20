@@ -17,7 +17,28 @@ import type {
 	ChatRoom,
 } from './autogen/models.js';
 
-export const notificationTypes = ['note', 'follow', 'mention', 'reply', 'renote', 'quote', 'reaction', 'pollVote', 'pollEnded', 'receiveFollowRequest', 'followRequestAccepted', 'groupInvited', 'app', 'roleAssigned', 'chatRoomInvitationReceived', 'achievementEarned'] as const;
+export const notificationTypes = [
+	'note',
+	'follow',
+	'mention',
+	'reply',
+	'renote',
+	'quote',
+	'reaction',
+	'pollEnded',
+	'scheduledNotePosted',
+	'scheduledNotePostFailed',
+	'receiveFollowRequest',
+	'followRequestAccepted',
+	'app',
+	'roleAssigned',
+	'chatRoomInvitationReceived',
+	'achievementEarned',
+	'exportCompleted',
+	'test',
+	'login',
+	'createToken',
+] as const;
 
 export const noteVisibilities = ['public', 'home', 'followers', 'specified'] as const;
 
@@ -28,7 +49,6 @@ export const followingVisibilities = ['public', 'followers', 'private'] as const
 export const followersVisibilities = ['public', 'followers', 'private'] as const;
 
 export const permissions = [
-	'read:admin:nirila-delete-user-log-access',
 	'read:account',
 	'write:account',
 	'read:blocks',
@@ -114,6 +134,7 @@ export const permissions = [
 	'write:report-abuse',
 	'write:chat',
 	'read:chat',
+	'read:admin:nirila-delete-user-log-access',
 ] as const;
 
 export const moderationLogTypes = [
@@ -168,12 +189,55 @@ export const moderationLogTypes = [
 	'deleteFlash',
 	'deleteGalleryPost',
 	'deleteChatRoom',
-	'makeNoteHome',
+	'updateProxyAccountDescription',
+] as const;
+
+export const rolePolicies = [
+	'vrtlAvailable',
+	'gtlAvailable',
+	'ltlAvailable',
+	'canPublicNote',
+	'mentionLimit',
+	'canInvite',
+	'inviteLimit',
+	'inviteLimitCycle',
+	'inviteExpirationTime',
+	'canManageCustomEmojis',
+	'canManageAvatarDecorations',
+	'canSearchNotes',
+	'canSearchUsers',
+	'canUseTranslator',
+	'canHideAds',
+	'driveCapacityMb',
+	'maxFileSizeMb',
+	'alwaysMarkNsfw',
+	'canUpdateBioMedia',
+	'pinLimit',
+	'antennaLimit',
+	'wordMuteLimit',
+	'webhookLimit',
+	'clipLimit',
+	'noteEachClipsLimit',
+	'userListLimit',
+	'userEachUserListsLimit',
+	'rateLimitFactor',
+	'avatarDecorationLimit',
+	'canImportAntennas',
+	'canImportBlocking',
+	'canImportFollowing',
+	'canImportMuting',
+	'canImportUserLists',
+	'chatAvailability',
+	'uploadableFileTypes',
+	'noteDraftLimit',
+	'scheduledNoteLimit',
+	'watermarkAvailable',
 ] as const;
 
 export const queueTypes = [
 	'system',
 	'endedPollNotification',
+	'postScheduledNote',
 	'deliver',
 	'inbox',
 	'db',
@@ -195,7 +259,15 @@ export const reversiUpdateKeys = [
 
 export type ReversiUpdateKey = typeof reversiUpdateKeys[number];
 
-type AvatarDecoration = UserLite['avatarDecorations'][number];
+type AvatarDecoration = {
+	id: string;
+	name: string;
+	url: string;
+	angle?: number;
+	flipH?: boolean;
+	offsetX?: number;
+	offsetY?: number;
+};
 
 type ReceivedAbuseReport = {
 	reportId: AbuseReportNotificationRecipient['id'];
@@ -457,11 +529,8 @@ export type ModerationLogPayloads = {
 		roomId: string;
 		room: ChatRoom;
 	};
-	makeNoteHome: {
-		noteId: string;
-		noteUserId: string;
-		noteUserUsername: string;
-		noteUserHost: string | null;
-		note: any;
-	};
+	updateProxyAccountDescription: {
+		before: string | null;
+		after: string | null;
+	}
 };

@@ -1,4 +1,4 @@
-import assert, { rejects, strictEqual } from 'node:assert';
+import assert, { notEqual, rejects, strictEqual } from 'node:assert';
 import * as Misskey from 'misskey-js';
 import { addCustomEmoji, createAccount, createModerator, deepStrictEqualWithExcludedFields, type LoginUser, resolveRemoteNote, resolveRemoteUser, sleep, uploadFile } from './utils.js';
 
@@ -63,7 +63,6 @@ describe('Note', () => {
 			deepStrictEqualWithExcludedFields(note, resolvedNote, [
 				'id',
 				'emojis',
-				'reactionAcceptance',
 				'replyId',
 				'reply',
 				'userId',
@@ -105,7 +104,6 @@ describe('Note', () => {
 			deepStrictEqualWithExcludedFields(note, resolvedNote, [
 				'id',
 				'emojis',
-				'reactionAcceptance',
 				'renoteId',
 				'renote',
 				'userId',
@@ -156,13 +154,8 @@ describe('Note', () => {
 					await bob.client.request('notes/delete', { noteId: note.id });
 					await sleep();
 
-					await rejects(
-						async () => await carol.client.request('notes/show', { noteId: noteInA.id }),
-						(err: any) => {
-							strictEqual(err.code, 'NO_SUCH_NOTE');
-							return true;
-						},
-					);
+					const noteInARemoved = await carol.client.request('notes/show', { noteId: noteInA.id });
+					notEqual(noteInARemoved.deletedAt, null);
 				});
 
 				afterAll(async () => {
@@ -181,13 +174,8 @@ describe('Note', () => {
 					await bob.client.request('notes/delete', { noteId: note.id });
 					await sleep();
 
-					await rejects(
-						async () => await alice.client.request('notes/show', { noteId: noteInA.id }),
-						(err: any) => {
-							strictEqual(err.code, 'NO_SUCH_NOTE');
-							return true;
-						},
-					);
+					const noteInARemoved = await alice.client.request('notes/show', { noteId: noteInA.id });
+					notEqual(noteInARemoved.deletedAt, null);
 				});
 			});
 
@@ -201,13 +189,8 @@ describe('Note', () => {
 					await bob.client.request('notes/delete', { noteId: note.id });
 					await sleep();
 
-					await rejects(
-						async () => await alice.client.request('notes/show', { noteId: noteInA.id }),
-						(err: any) => {
-							strictEqual(err.code, 'NO_SUCH_NOTE');
-							return true;
-						},
-					);
+					const noteInARemoved = await alice.client.request('notes/show', { noteId: noteInA.id });
+					notEqual(noteInARemoved.deletedAt, null);
 				});
 			});
 
@@ -243,13 +226,9 @@ describe('Note', () => {
 				const noteInB = await resolveRemoteNote('a.test', note.id, bob);
 				const bMod = await createModerator('b.test');
 				await bMod.client.request('notes/delete', { noteId: noteInB.id });
-				await rejects(
-					async () => await bob.client.request('notes/show', { noteId: noteInB.id }),
-					(err: any) => {
-						strictEqual(err.code, 'NO_SUCH_NOTE');
-						return true;
-					},
-				);
+
+				const noteInBRemoved = await bob.client.request('notes/show', { noteId: noteInB.id });
+				notEqual(noteInBRemoved.deletedAt, null);
 			});
 
 			/**
