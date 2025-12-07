@@ -1,4 +1,5 @@
-## 2025.12.0
+## 2025.12.0-kinel.1
+## 2025.12.0 (merged to 2025.12.0-kinel.1)
 
 ### Note
 - configの`trustProxy`のデフォルト値を`false`に変更しました。アップデート前に現在のconfigをご確認の上、必要に応じて値を変更してください。
@@ -12,7 +13,7 @@
 - Enhance: 依存関係の更新
 - Fix: セキュリティに関する修正
 
-## 2025.11.1
+## 2025.11.1 (merged to 2025.12.0-kinel.1)
 
 ### Client
 
@@ -42,7 +43,7 @@
 - Fix: DBレプリケーションを利用する環境でクエリーが失敗する問題を修正  
   (Cherry-picked from https://github.com/MisskeyIO/misskey/pull/1123)
 
-## 2025.11.0
+## 2025.11.0 (merged to 2025.12.0-kinel.1)
 
 ### General
 - Feat: チャンネルミュート機能の実装 #10649
