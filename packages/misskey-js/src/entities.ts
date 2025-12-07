@@ -206,6 +206,9 @@ export type ModerationLog = {
 } | {
 	type: 'updateProxyAccountDescription';
 	info: ModerationLogPayloads['updateProxyAccountDescription'];
+} | {
+	type: 'makeNoteHome';
+	info: ModerationLogPayloads['makeNoteHome'];
 });
 
 export type ServerStats = {
