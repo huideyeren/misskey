@@ -795,6 +795,7 @@ export function useUploader(options: {
 			item.compressMode !== 'lossyWhenResize' // Compression is requested
 			|| item.imageResizeSize < Number.POSITIVE_INFINITY // Resize is requested
 			|| needsWatermark && item.watermarkLayers != null // Watermarking is done
+			|| needsImageFrame && item.imageFrameParams != null // Image Framing is done
 		);
 
 		if (needsCompress) {
