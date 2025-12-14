@@ -3034,6 +3034,9 @@ type ModerationLog = {
 } | {
     type: 'updateProxyAccountDescription';
     info: ModerationLogPayloads['updateProxyAccountDescription'];
+} | {
+    type: 'makeNoteHome';
+    info: ModerationLogPayloads['makeNoteHome'];
 });
 
 // @public (undocumented)
