@@ -173,12 +173,14 @@ SPDX-License-Identifier: AGPL-3.0-only
 			<button v-else :class="$style.noteFooterButton" class="_button" disabled>
 				<i class="ti ti-ban"></i>
 			</button>
-			<button v-if="prefer.s.showClipButtonInNoteFooter" ref="clipButton" class="_button" :class="$style.noteFooterButton" @mousedown.prevent="clip()">
-				<i class="ti ti-paperclip"></i>
-			</button>
-			<button v-else-if="appearNote.deletedAt" :class="$style.noteFooterButton" class="_button" disabled>
-				<i class="ti ti-ban"></i>
-			</button>
+			<template v-if="prefer.s.showClipButtonInNoteFooter">
+				<button v-if="!appearNote.deletedAt" ref="clipButton" class="_button" :class="$style.noteFooterButton" @mousedown.prevent="clip()">
+					<i class="ti ti-paperclip"></i>
+				</button>
+				<button v-else :class="$style.noteFooterButton" class="_button" disabled>
+					<i class="ti ti-ban"></i>
+				</button>
+			</template>
 			<button ref="menuButton" class="_button" :class="$style.noteFooterButton" @mousedown.prevent="showMenu()">
 				<i class="ti ti-dots"></i>
 			</button>
