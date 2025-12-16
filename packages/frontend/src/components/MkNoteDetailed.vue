@@ -87,7 +87,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 			<div v-show="appearNote.cw == null || showContent">
 				<span v-if="appearNote.isHidden" style="opacity: 0.5">({{ i18n.ts.private }})</span>
 				<MkA v-if="appearNote.replyId" :class="$style.noteReplyTarget" :to="`/notes/${appearNote.replyId}`"><i class="ti ti-arrow-back-up"></i></MkA>
-				<div v-if="isRenote && note.renote == null" :class="$style.deleted">
+				<div v-if="appearNote.deletedAt" :class="$style.deleted">
 					{{ i18n.ts.deletedNote }}
 				</div>
 				<Mfm
@@ -136,7 +136,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 				</MkA>
 			</div>
 			<MkReactionsViewer
-				v-if="appearNote.reactionAcceptance !== 'likeOnly'"
+				v-if="!appearNote.deletedAt && appearNote.reactionAcceptance !== 'likeOnly'"
 				style="margin-top: 6px;"
 				:reactions="$appearNote.reactions"
 				:reactionEmojis="$appearNote.reactionEmojis"
@@ -175,12 +175,14 @@ SPDX-License-Identifier: AGPL-3.0-only
 			<button v-else :class="$style.noteFooterButton" class="_button" disabled>
 				<i class="ti ti-ban"></i>
 			</button>
-			<button v-if="prefer.s.showClipButtonInNoteFooter" ref="clipButton" class="_button" :class="$style.noteFooterButton" @mousedown.prevent="clip()">
-				<i class="ti ti-paperclip"></i>
-			</button>
-			<button v-else-if="appearNote.deletedAt" :class="$style.noteFooterButton" class="_button" disabled>
-				<i class="ti ti-ban"></i>
-			</button>
+			<template v-if="prefer.s.showClipButtonInNoteFooter">
+				<button v-if="!appearNote.deletedAt" ref="clipButton" class="_button" :class="$style.noteFooterButton" @mousedown.prevent="clip()">
+					<i class="ti ti-paperclip"></i>
+				</button>
+				<button v-else :class="$style.noteFooterButton" class="_button" disabled>
+					<i class="ti ti-ban"></i>
+				</button>
+			</template>
 			<button ref="menuButton" class="_button" :class="$style.noteFooterButton" @mousedown.prevent="showMenu()">
 				<i class="ti ti-dots"></i>
 			</button>
