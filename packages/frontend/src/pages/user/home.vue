@@ -144,7 +144,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 					</template>
 					<div v-if="!disableNotes">
 						<MkLazy>
-							<XTimeline :user="user"/>
+							<XTimeline :user="user" :collapseSensitiveChannel="collapseSensitiveChannel"/>
 						</MkLazy>
 					</div>
 				</div>
@@ -159,7 +159,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 </template>
 
 <script lang="ts" setup>
-import { defineAsyncComponent, computed, onMounted, onUnmounted, onActivated, onDeactivated, nextTick, watch, ref, useTemplateRef } from 'vue';
+import { defineAsyncComponent, computed, onMounted, onUnmounted, onActivated, onDeactivated, provide, nextTick, watch, ref, useTemplateRef } from 'vue';
 import * as Misskey from 'misskey-js';
 import { getScrollContainer } from '@@/js/scroll.js';
 import MkNote from '@/components/MkNote.vue';
@@ -229,6 +229,8 @@ const memoDraft = ref(props.user.memo);
 const isEditingMemo = ref(false);
 const moderationNote = ref(props.user.moderationNote ?? '');
 const editModerationNote = ref(false);
+const collapseSensitiveChannel = ref(prefer.s.collapseSensitiveChannel);
+provide<boolean>('collapseSensitiveChannel', prefer.s.collapseSensitiveChannel);
 
 watch(moderationNote, async () => {
 	await misskeyApi('admin/update-user-note', { userId: props.user.id, text: moderationNote.value });
