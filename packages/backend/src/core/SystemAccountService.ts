@@ -23,7 +23,7 @@ import { genRsaKeyPair } from '@/misc/gen-key-pair.js';
 export const SYSTEM_ACCOUNT_TYPES = ['actor', 'relay', 'proxy', 'ghost'] as const;
 
 export const systemAccountName: Partial<Record<typeof SYSTEM_ACCOUNT_TYPES[number], string>> = {
-	ghost: 'Unknown Account',
+	ghost: 'Unknown User',
 };
 
 @Injectable()
