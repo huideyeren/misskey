@@ -65,6 +65,7 @@ import { FlushPage } from './views/flush.js';
 import { ErrorPage } from './views/error.js';
 
 import type { FastifyError, FastifyInstance, FastifyPluginOptions, FastifyReply } from 'fastify';
+import { GetterService } from '@/server/api/GetterService.js';
 
 const _filename = fileURLToPath(import.meta.url);
 const _dirname = dirname(_filename);
@@ -131,6 +132,7 @@ export class ClientServerService {
 		private feedService: FeedService,
 		private htmlTemplateService: HtmlTemplateService,
 		private clientLoggerService: ClientLoggerService,
+		private getterService: GetterService,
 	) {
 		//this.createServer = this.createServer.bind(this);
 	}
@@ -777,18 +779,15 @@ export class ClientServerService {
 		fastify.get<{ Params: { note: string; } }>('/embed/notes/:note', async (request, reply) => {
 			reply.removeHeader('X-Frame-Options');
 
-			const note = await this.notesRepository.findOne({
-				where: {
-					id: request.params.note,
-				},
-				relations: ['user', 'reply', 'renote'],
-			});
+			const note = await this.getterService.getMayDeletedNoteWithRelations(request.params.note);
 
 			if (note == null) return;
-			if (['specified', 'followers'].includes(note.visibility)) return;
-			if (note.userHost != null) return;
+			if (!('deletedAt' in note)) {
+				if (['specified', 'followers'].includes(note.visibility)) return;
+				if (note.userHost != null) return;
+			}
 
-			const _note = await this.noteEntityService.pack(note, null, { detail: true });
+			const _note = await this.noteEntityService.packMayDeleted(note, null, { detail: true });
 
 			reply.header('Cache-Control', 'public, max-age=3600');
 			return await HtmlTemplateService.replyHtml(reply, BaseEmbed({
