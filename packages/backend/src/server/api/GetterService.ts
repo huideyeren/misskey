@@ -64,7 +64,7 @@ export class GetterService {
 	}
 
 	@bindThis
-	public async getMayDeletedNoteWithRelations(noteId: MiNote['id']): Promise<(MiNote | MiDeletedNote) & { user: NonNullable<MiNote['user']> }> {
+	public async getMayDeletedNoteWithRelations(noteId: MiNote['id']): Promise<(MiNote & { user: NonNullable<MiNote['user']> }) | MiDeletedNote> {
 		let note: MiNote | MiDeletedNote | null = await this.notesRepository.findOne({ where: { id: noteId }, relations: ['user', 'reply', 'renote', 'reply.user', 'renote.user'] });
 
 		note ??= await this.deletedNotesRepository.findOne({ where: { id: noteId }, relations: ['user', 'reply', 'renote', 'reply.user', 'renote.user'] });
