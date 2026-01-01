@@ -18,7 +18,7 @@ import MkButton from '@/components/MkButton.vue';
 const props = defineProps<{
 	modelValue: boolean;
 	text: string | null;
-	isRenote?: Misskey.entities.Note | null;
+	isRenote?: boolean;
 	files?: Misskey.entities.DriveFile[];
 	poll?: Misskey.entities.Note['poll'] | PollEditorModelValue | null;
 }>();

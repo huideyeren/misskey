@@ -5,7 +5,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 
 <template>
 <div :class="$style.root">
-	<EmAvatar v-if="note == null || !note.deletedAt" :class="$style.avatar" :user="note.user" link preview/>
+	<EmAvatar v-if="note != null && !note.deletedAt" :class="$style.avatar" :user="note.user" link preview/>
 	<div v-else :class="$style.avatar"></div>
 	<div :class="$style.main">
 		<EmNoteHeader :class="$style.header" :note="note" :mini="true"/>
