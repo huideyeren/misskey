@@ -45,8 +45,14 @@ SPDX-License-Identifier: AGPL-3.0-only
 	</div>
 	<article :class="$style.note" @contextmenu.stop="onContextmenu">
 		<header :class="$style.noteHeader">
-			<MkAvatar :class="$style.noteHeaderAvatar" :user="appearNote.user" indicator link preview/>
-			<div :class="$style.noteHeaderBody">
+			<div v-if="note.deletedAt" :class="$style.noteHeaderAvatar"></div>
+			<MkAvatar v-else :class="$style.noteHeaderAvatar" :user="appearNote.user" indicator link preview/>
+			<div v-if="note.deletedAt" :class="$style.noteHeaderBody">
+				<div :class="$style.noteHeaderName" style="opacity: 0.5;">
+					Unknown User
+				</div>
+			</div>
+			<div v-else :class="$style.noteHeaderBody">
 				<div>
 					<MkA v-user-preview="appearNote.user.id" :class="$style.noteHeaderName" :to="userPage(appearNote.user)">
 						<MkUserName :nowrap="false" :user="appearNote.user"/>
@@ -101,7 +107,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 					:enableEmojiMenuReaction="true"
 					class="_selectable"
 				/>
-				<a v-if="appearNote.renote != null" :class="$style.rn">RN:</a>
+				<a v-if="appearNote.renoteId != null" :class="$style.rn">RN:</a>
 				<div v-if="translating || translation" :class="$style.translation">
 					<MkLoading v-if="translating" mini/>
 					<div v-else-if="translation">
@@ -125,7 +131,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 				<div v-if="isEnabledUrlPreview">
 					<MkUrlPreview v-for="url in urls" :key="url" :url="url" :compact="true" :detail="true" style="margin-top: 6px;"/>
 				</div>
-				<div v-if="appearNote.renote" :class="$style.quote"><MkNoteSimple :note="appearNote.renote" :class="$style.quoteNote"/></div>
+				<div v-if="appearNote.renoteId" :class="$style.quote"><MkNoteSimple :note="appearNote.renote ?? null" :class="$style.quoteNote"/></div>
 			</div>
 			<MkA v-if="appearNote.channel && !inChannel" :class="$style.channel" :to="`/channels/${appearNote.channel.id}`"><i class="ti ti-device-tv"></i> {{ appearNote.channel.name }}</MkA>
 		</div>
