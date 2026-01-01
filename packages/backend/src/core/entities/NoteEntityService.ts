@@ -520,7 +520,7 @@ export class NoteEntityService implements OnModuleInit {
 			where: {
 				id: srcId,
 			},
-			relations: ['user', 'renote', 'reply', 'channel'],
+			relations: ['renote', 'reply', 'channel'],
 		});
 
 		const channel = deletedNote.channelId

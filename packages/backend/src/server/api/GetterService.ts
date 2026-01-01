@@ -67,7 +67,7 @@ export class GetterService {
 	public async getMayDeletedNoteWithRelations(noteId: MiNote['id']): Promise<(MiNote & { user: NonNullable<MiNote['user']> }) | MiDeletedNote> {
 		let note: MiNote | MiDeletedNote | null = await this.notesRepository.findOne({ where: { id: noteId }, relations: ['user', 'reply', 'renote', 'reply.user', 'renote.user'] });
 
-		note ??= await this.deletedNotesRepository.findOne({ where: { id: noteId }, relations: ['user', 'reply', 'renote', 'reply.user', 'renote.user'] });
+		note ??= await this.deletedNotesRepository.findOne({ where: { id: noteId }, relations: ['reply', 'renote', 'reply.user', 'renote.user'] });
 
 		if (note == null) {
 			throw new IdentifiableError('9725d0ce-ba28-4dde-95a7-2cbb2c15de24', 'No such note.');
