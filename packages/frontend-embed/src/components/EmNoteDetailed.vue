@@ -36,9 +36,9 @@ SPDX-License-Identifier: AGPL-3.0-only
 	</div>
 	<article :class="$style.note">
 		<header :class="$style.noteHeader">
-			<div v-if="note.deletedAt" :class="$style.noteHeaderAvatar"></div>
+			<div v-if="appearNote.deletedAt" :class="$style.noteHeaderAvatar"></div>
 			<EmAvatar v-else :class="$style.noteHeaderAvatar" :user="appearNote.user" indicator link/>
-			<div v-if="note.deletedAt" :class="$style.noteHeaderBody">
+			<div v-if="appearNote.deletedAt" :class="$style.noteHeaderBody">
 				<div :class="$style.noteHeaderName" style="opacity: 0.5;">
 					Unknown User
 				</div>
