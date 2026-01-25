@@ -204,6 +204,7 @@ export const packedNoteSchema = {
 		reactionAcceptance: {
 			type: 'string',
 			optional: false, nullable: true,
+			enum: ['likeOnly', 'likeOnlyForRemote', 'nonSensitiveOnly', 'nonSensitiveOnlyForLocalLikeOnlyForRemote', null],
 		},
 		reactionEmojis: {
 			type: 'object',
@@ -222,6 +223,10 @@ export const packedNoteSchema = {
 					type: 'number',
 				}],
 			},
+		},
+		reactionCount: {
+			type: 'number',
+			optional: false, nullable: false,
 		},
 		renoteCount: {
 			type: 'number',
@@ -249,6 +254,10 @@ export const packedNoteSchema = {
 		},
 		clippedCount: {
 			type: 'number',
+			optional: true, nullable: false,
+		},
+		hasPoll: {
+			type: 'boolean',
 			optional: true, nullable: false,
 		},
 

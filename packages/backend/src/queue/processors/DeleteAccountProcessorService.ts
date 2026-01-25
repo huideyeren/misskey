@@ -4,16 +4,23 @@
  */
 
 import { Inject, Injectable } from '@nestjs/common';
-import { MoreThan } from 'typeorm';
+import { DataSource, MoreThan } from 'typeorm';
 import { DI } from '@/di-symbols.js';
-import type { DriveFilesRepository, NotesRepository, UserProfilesRepository, UsersRepository } from '@/models/_.js';
+import type { DriveFilesRepository, MiUser, NotesRepository, PagesRepository, UserProfilesRepository, UsersRepository, NirilaDeleteUserLogRepository, SigninsRepository } from '@/models/_.js';
 import type Logger from '@/logger.js';
 import { DriveService } from '@/core/DriveService.js';
 import type { MiDriveFile } from '@/models/DriveFile.js';
-import type { MiNote } from '@/models/Note.js';
+import { MiNote } from '@/models/Note.js';
+import { MiDeletedNote } from '@/models/DeletedNote.js';
 import { EmailService } from '@/core/EmailService.js';
 import { bindThis } from '@/decorators.js';
 import { SearchService } from '@/core/SearchService.js';
+import { RoleService } from '@/core/RoleService.js';
+import { RoleEntityService } from '@/core/entities/RoleEntityService.js';
+import { IdService } from '@/core/IdService.js';
+import { UserEntityService } from '@/core/entities/UserEntityService.js';
+import { PageService } from '@/core/PageService.js';
+import { isQuote, isRenote } from '@/misc/is-renote.js';
 import { QueueLoggerService } from '../QueueLoggerService.js';
 import type * as Bull from 'bullmq';
 import type { DbUserDeleteJobData } from '../types.js';
@@ -23,6 +30,9 @@ export class DeleteAccountProcessorService {
 	private logger: Logger;
 
 	constructor(
+		@Inject(DI.db)
+		private db: DataSource,
+
 		@Inject(DI.usersRepository)
 		private usersRepository: UsersRepository,
 
@@ -35,12 +45,97 @@ export class DeleteAccountProcessorService {
 		@Inject(DI.driveFilesRepository)
 		private driveFilesRepository: DriveFilesRepository,
 
+		@Inject(DI.pagesRepository)
+		private pagesRepository: PagesRepository,
+
+		@Inject(DI.signinsRepository)
+		private signinsRepository: SigninsRepository,
+
+		@Inject(DI.nirilaDeleteUserLogRepository)
+		private nirilaDeleteUserLogRepository: NirilaDeleteUserLogRepository,
+
+		private roleService: RoleService,
+		private roleEntityService: RoleEntityService,
+		private idService: IdService,
+		private userEntityService: UserEntityService,
 		private driveService: DriveService,
+		private pageService: PageService,
 		private emailService: EmailService,
 		private queueLoggerService: QueueLoggerService,
 		private searchService: SearchService,
 	) {
 		this.logger = this.queueLoggerService.logger.createSubLogger('delete-account');
+	}
+
+	@bindThis
+	async logDelete(user: MiUser) {
+		if (user.host != null) {
+			this.logger.info(`Skipping logging account deletion of ${user.id} ...`);
+			return;
+		}
+
+		const profile = await this.userProfilesRepository.findOneByOrFail({ userId: user.id });
+
+		// data from src/server/api/endpoints/users/show.ts
+		const detailedUser = await this.userEntityService.pack<'UserDetailed'>(user, null, {
+			schema: 'UserDetailed',
+			asModerator: true,
+		});
+
+		// data from src/server/api/endpoints/admin/show-user.ts
+
+		const isModerator = await this.roleService.isModerator(user);
+		const isSilenced = !(await this.roleService.getUserPolicies(user.id)).canPublicNote;
+
+		const signins = await this.signinsRepository.findBy({ userId: user.id });
+
+		const roleAssigns = await this.roleService.getUserAssigns(user.id);
+		const roles = await this.roleService.getUserRoles(user.id);
+
+		const adminInfo = {
+			email: profile.email,
+			emailVerified: profile.emailVerified,
+			autoAcceptFollowed: profile.autoAcceptFollowed,
+			noCrawle: profile.noCrawle,
+			preventAiLearning: profile.preventAiLearning,
+			alwaysMarkNsfw: profile.alwaysMarkNsfw,
+			autoSensitive: profile.autoSensitive,
+			carefulBot: profile.carefulBot,
+			injectFeaturedNote: profile.injectFeaturedNote,
+			receiveAnnouncementEmail: profile.receiveAnnouncementEmail,
+			mutedWords: profile.mutedWords,
+			mutedInstances: profile.mutedInstances,
+			notificationRecieveConfig: profile.notificationRecieveConfig,
+			isModerator: isModerator,
+			isSilenced: isSilenced,
+			isSuspended: user.isSuspended,
+			isHibernated: user.isHibernated,
+			lastActiveDate: user.lastActiveDate,
+			moderationNote: profile.moderationNote ?? '',
+			signins,
+			policies: await this.roleService.getUserPolicies(user.id),
+			roles: await this.roleEntityService.packMany(roles, { id: user.id }), // note: me is unused param
+			roleAssigns: roleAssigns.map(a => ({
+				createdAt: this.idService.parse(a.id).date.toISOString(),
+				expiresAt: a.expiresAt ? a.expiresAt.toISOString() : null,
+				roleId: a.roleId,
+			})),
+		};
+
+		const info: Record<string, any> = {
+			user: detailedUser,
+			adminInfo,
+		};
+
+		await this.nirilaDeleteUserLogRepository.insert({
+			id: this.idService.gen(),
+			userId: user.id,
+			username: user.username,
+			email: profile.email,
+			info,
+		});
+
+		this.logger.info(`Finished logging account deletion of ${user.id} ...`);
 	}
 
 	@bindThis
@@ -50,6 +145,12 @@ export class DeleteAccountProcessorService {
 		const user = await this.usersRepository.findOneBy({ id: job.data.user.id });
 		if (user == null) {
 			return;
+		}
+
+		try {
+			this.logDelete(user);
+		} catch (e) {
+			this.logger.error(`Failed to log delete: ${e}`);
 		}
 
 		{ // Delete notes
@@ -73,7 +174,24 @@ export class DeleteAccountProcessorService {
 
 				cursor = notes.at(-1)?.id ?? null;
 
-				await this.notesRepository.delete(notes.map(note => note.id));
+				await this.db.transaction(async transaction => {
+					await transaction.delete(MiNote, notes.map(note => note.id));
+					// We keep some limited information about deleted renotes to preserve reply/renote chains
+					// We do not keep for pure renotes because it will not have any replies/renotes.
+					// (Historically we can renote pure renotes and can reply to pure renotes with API, but it was just a bug and fixed.)
+					await transaction.save(MiDeletedNote, notes.filter(note => !(isRenote(note) && !isQuote(note))).map(note => ({
+						id: note.id,
+						deletedAt: new Date(),
+						replyId: note.replyId,
+						renoteId: note.renoteId,
+						localOnly: note.localOnly,
+						uri: note.uri,
+						url: note.url,
+						channelId: note.channelId,
+						replyUserId: note.replyUserId,
+						renoteUserId: note.renoteUserId,
+					})));
+				});
 
 				for (const note of notes) {
 					await this.searchService.unindexNote(note);
@@ -110,6 +228,28 @@ export class DeleteAccountProcessorService {
 			}
 
 			this.logger.succ('All of files deleted');
+		}
+
+		{
+			// delete pages. Necessary for decrementing pageCount of notes.
+			while (true) {
+				const pages = await this.pagesRepository.find({
+					where: {
+						userId: user.id,
+					},
+					take: 100,
+					order: {
+						id: 1,
+					},
+				});
+
+				if (pages.length === 0) {
+					break;
+				}
+				for (const page of pages) {
+					await this.pageService.delete(user, page.id);
+				}
+			}
 		}
 
 		{ // Send email notification

@@ -9,6 +9,8 @@ import { HybridTimelineChannelService } from './channels/hybrid-timeline.js';
 import { LocalTimelineChannelService } from './channels/local-timeline.js';
 import { HomeTimelineChannelService } from './channels/home-timeline.js';
 import { GlobalTimelineChannelService } from './channels/global-timeline.js';
+import { VmimiRelayTimelineChannelService } from './channels/vmimi-relay-timeline.js';
+import { VmimiRelayHybridTimelineChannelService } from './channels/vmimi-relay-hybrid-timeline.js';
 import { MainChannelService } from './channels/main.js';
 import { ChannelChannelService } from './channels/channel.js';
 import { AdminChannelService } from './channels/admin.js';
@@ -19,6 +21,8 @@ import { AntennaChannelService } from './channels/antenna.js';
 import { DriveChannelService } from './channels/drive.js';
 import { HashtagChannelService } from './channels/hashtag.js';
 import { RoleTimelineChannelService } from './channels/role-timeline.js';
+import { ChatUserChannelService } from './channels/chat-user.js';
+import { ChatRoomChannelService } from './channels/chat-room.js';
 import { ReversiChannelService } from './channels/reversi.js';
 import { ReversiGameChannelService } from './channels/reversi-game.js';
 import { type MiChannelService } from './channel.js';
@@ -31,6 +35,8 @@ export class ChannelsService {
 		private localTimelineChannelService: LocalTimelineChannelService,
 		private hybridTimelineChannelService: HybridTimelineChannelService,
 		private globalTimelineChannelService: GlobalTimelineChannelService,
+		private vmimiRelayTimelineChannelService: VmimiRelayTimelineChannelService,
+		private vmimiRelayHybridTimelineChannelService: VmimiRelayHybridTimelineChannelService,
 		private userListChannelService: UserListChannelService,
 		private hashtagChannelService: HashtagChannelService,
 		private roleTimelineChannelService: RoleTimelineChannelService,
@@ -40,6 +46,8 @@ export class ChannelsService {
 		private serverStatsChannelService: ServerStatsChannelService,
 		private queueStatsChannelService: QueueStatsChannelService,
 		private adminChannelService: AdminChannelService,
+		private chatUserChannelService: ChatUserChannelService,
+		private chatRoomChannelService: ChatRoomChannelService,
 		private reversiChannelService: ReversiChannelService,
 		private reversiGameChannelService: ReversiGameChannelService,
 	) {
@@ -53,6 +61,8 @@ export class ChannelsService {
 			case 'localTimeline': return this.localTimelineChannelService;
 			case 'hybridTimeline': return this.hybridTimelineChannelService;
 			case 'globalTimeline': return this.globalTimelineChannelService;
+			case 'vmimiRelayTimeline': return this.vmimiRelayTimelineChannelService;
+			case 'vmimiRelayHybridTimeline': return this.vmimiRelayHybridTimelineChannelService;
 			case 'userList': return this.userListChannelService;
 			case 'hashtag': return this.hashtagChannelService;
 			case 'roleTimeline': return this.roleTimelineChannelService;
@@ -62,6 +72,8 @@ export class ChannelsService {
 			case 'serverStats': return this.serverStatsChannelService;
 			case 'queueStats': return this.queueStatsChannelService;
 			case 'admin': return this.adminChannelService;
+			case 'chatUser': return this.chatUserChannelService;
+			case 'chatRoom': return this.chatRoomChannelService;
 			case 'reversi': return this.reversiChannelService;
 			case 'reversiGame': return this.reversiGameChannelService;
 

@@ -75,6 +75,11 @@ export class MiAntenna {
 	@Column('boolean', {
 		default: false,
 	})
+	public excludeBots: boolean;
+
+	@Column('boolean', {
+		default: false,
+	})
 	public withReplies: boolean;
 
 	@Column('boolean')
@@ -84,9 +89,6 @@ export class MiAntenna {
 		length: 2048, nullable: true,
 	})
 	public expression: string | null;
-
-	@Column('boolean')
-	public notify: boolean;
 
 	@Index()
 	@Column('boolean', {
@@ -98,4 +100,12 @@ export class MiAntenna {
 		default: false,
 	})
 	public localOnly: boolean;
+
+	@Column('boolean', {
+		default: false,
+	})
+	public excludeNotesInSensitiveChannel: boolean;
 }
+// Note for future developers: When you added a new column,
+// You should update ExportAntennaProcessorService and ImportAntennaProcessorService
+// to export and import antennas correctly.

@@ -8,7 +8,6 @@ import promiseLimit from 'promise-limit';
 import type { MiRemoteUser, MiUser } from '@/models/User.js';
 import { concat, unique } from '@/misc/prelude/array.js';
 import { bindThis } from '@/decorators.js';
-import { isNotNull } from '@/misc/is-not-null.js';
 import { getApIds } from './type.js';
 import { ApPersonService } from './models/ApPersonService.js';
 import type { ApObject } from './type.js';
@@ -32,7 +31,7 @@ export class ApAudienceService {
 	}
 
 	@bindThis
-	public async parseAudience(actor: MiRemoteUser, to?: ApObject, cc?: ApObject, resolver?: Resolver): Promise<AudienceInfo> {
+	public async parseAudience(actor: MiRemoteUser | null, to?: ApObject, cc?: ApObject, resolver?: Resolver): Promise<AudienceInfo> {
 		const toGroups = this.groupingAudience(getApIds(to), actor);
 		const ccGroups = this.groupingAudience(getApIds(cc), actor);
 
@@ -41,7 +40,7 @@ export class ApAudienceService {
 		const limit = promiseLimit<MiUser | null>(2);
 		const mentionedUsers = (await Promise.all(
 			others.map(id => limit(() => this.apPersonService.resolvePerson(id, resolver).catch(() => null))),
-		)).filter(isNotNull);
+		)).filter(x => x != null);
 
 		if (toGroups.public.length > 0) {
 			return {
@@ -75,7 +74,7 @@ export class ApAudienceService {
 	}
 
 	@bindThis
-	private groupingAudience(ids: string[], actor: MiRemoteUser): GroupedAudience {
+	private groupingAudience(ids: string[], actor: MiRemoteUser | null): GroupedAudience {
 		const groups: GroupedAudience = {
 			public: [],
 			followers: [],
@@ -107,7 +106,8 @@ export class ApAudienceService {
 	}
 
 	@bindThis
-	private isFollowers(id: string, actor: MiRemoteUser): boolean {
+	private isFollowers(id: string, actor: MiRemoteUser | null): boolean {
+		if (actor == null) return false;
 		return id === (actor.followersUri ?? `${actor.uri}/followers`);
 	}
 }
