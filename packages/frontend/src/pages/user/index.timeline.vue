@@ -19,7 +19,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 		</MkTab>
 	</template>
 	<MkNotesTimeline v-if="tab === 'featured'" :noGap="true" :paginator="featuredPaginator" :pullToRefresh="false" :class="$style.tl"/>
-	<MkNotesTimeline v-else :noGap="true" :paginator="notesPaginator" :pullToRefresh="false" :class="$style.tl"/>
+	<MkNotesTimeline v-else :noGap="true" :paginator="notesPaginator" :pullToRefresh="false" :class="$style.tl" :collapseSensitiveChannel="collapseSensitiveChannel"/>
 </MkStickyContainer>
 </template>
 
@@ -38,6 +38,7 @@ const props = defineProps<{
 }>();
 
 const tab = ref<'featured' | 'notes' | 'all' | 'files'>('all');
+const collapseSensitiveChannel = prefer.s.collapseSensitiveChannel;
 provide<boolean>('collapseSensitiveChannel', prefer.s.collapseSensitiveChannel);
 
 const featuredPaginator = markRaw(new Paginator('users/featured-notes', {

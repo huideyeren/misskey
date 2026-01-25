@@ -15,12 +15,14 @@ import type { UsersRepository, NotesRepository, FollowingsRepository, PollsRepos
 import { bindThis } from '@/decorators.js';
 import { DebounceLoader } from '@/misc/loader.js';
 import { IdService } from '@/core/IdService.js';
+import { shouldHideNoteByTime } from '@/misc/should-hide-note-by-time.js';
 import { ReactionsBufferingService } from '@/core/ReactionsBufferingService.js';
 import type { OnModuleInit } from '@nestjs/common';
 import type { CustomEmojiService } from '../CustomEmojiService.js';
 import type { ReactionService } from '../ReactionService.js';
 import type { UserEntityService } from './UserEntityService.js';
 import type { DriveFileEntityService } from './DriveFileEntityService.js';
+import { SystemAccountService } from '@/core/SystemAccountService.js';
 
 // is-renote.tsとよしなにリンク
 function isPureRenote(note: MiNote): note is MiNote & { renoteId: MiNote['id']; renote: MiNote } {
@@ -109,6 +111,7 @@ export class NoteEntityService implements OnModuleInit {
 		@Inject(DI.channelsRepository)
 		private channelsRepository: ChannelsRepository,
 
+		private systemAccountService: SystemAccountService,
 		//private userEntityService: UserEntityService,
 		//private driveFileEntityService: DriveFileEntityService,
 		//private customEmojiService: CustomEmojiService,
@@ -131,12 +134,7 @@ export class NoteEntityService implements OnModuleInit {
 	private treatVisibility(packedNote: Packed<'Note'>): Packed<'Note'>['visibility'] {
 		if (packedNote.visibility === 'public' || packedNote.visibility === 'home') {
 			const followersOnlyBefore = packedNote.user.makeNotesFollowersOnlyBefore;
-			if ((followersOnlyBefore != null)
-				&& (
-					(followersOnlyBefore <= 0 && (Date.now() - new Date(packedNote.createdAt).getTime() > 0 - (followersOnlyBefore * 1000)))
-					|| (followersOnlyBefore > 0 && (new Date(packedNote.createdAt).getTime() < followersOnlyBefore * 1000))
-				)
-			) {
+			if (shouldHideNoteByTime(followersOnlyBefore, packedNote.createdAt)) {
 				packedNote.visibility = 'followers';
 			}
 		}
@@ -156,12 +154,7 @@ export class NoteEntityService implements OnModuleInit {
 
 		if (!hide) {
 			const hiddenBefore = packedNote.user.makeNotesHiddenBefore;
-			if ((hiddenBefore != null)
-				&& (
-					(hiddenBefore <= 0 && (Date.now() - new Date(packedNote.createdAt).getTime() > 0 - (hiddenBefore * 1000)))
-					|| (hiddenBefore > 0 && (new Date(packedNote.createdAt).getTime() < hiddenBefore * 1000))
-				)
-			) {
+			if (shouldHideNoteByTime(hiddenBefore, packedNote.createdAt)) {
 				hide = true;
 			}
 		}
@@ -477,19 +470,19 @@ export class NoteEntityService implements OnModuleInit {
 			...(opts.detail ? {
 				clippedCount: note.clippedCount,
 
-				reply: note.replyId ? this.pack(note.reply ?? note.replyId, me, {
+				reply: note.replyId ? nullIfEntityNotFound(this.pack(note.reply ?? note.replyId, me, {
 					detail: false,
 					skipHide: opts.skipHide,
 					withReactionAndUserPairCache: opts.withReactionAndUserPairCache,
 					_hint_: options?._hint_,
-				}) : undefined,
+				})) : undefined,
 
-				renote: note.renoteId ? this.pack(note.renote ?? note.renoteId, me, {
+				renote: note.renoteId ? nullIfEntityNotFound(this.pack(note.renote ?? note.renoteId, me, {
 					detail: true,
 					skipHide: opts.skipHide,
 					withReactionAndUserPairCache: opts.withReactionAndUserPairCache,
 					_hint_: options?._hint_,
-				}) : undefined,
+				})) : undefined,
 
 				poll: note.hasPoll ? this.populatePoll(note, meId) : undefined,
 
@@ -527,21 +520,21 @@ export class NoteEntityService implements OnModuleInit {
 			where: {
 				id: srcId,
 			},
-			relations: ['user', 'renote', 'reply', 'channel'],
+			relations: ['renote', 'reply', 'channel'],
 		});
-
-		const packedUsers = options?._hint_?.packedUsers;
 
 		const channel = deletedNote.channelId
 			? deletedNote.channel ?? await this.channelsRepository.findOneBy({ id: deletedNote.channelId })
 			: null;
 
+		const ghostUser = await this.systemAccountService.fetch('ghost');
+
 		return await awaitAll({
 			id: deletedNote.id,
 			createdAt: this.idService.parse(deletedNote.id).date.toISOString(),
 			deletedAt: deletedNote.deletedAt?.toISOString() ?? undefined,
-			userId: deletedNote.userId,
-			user: packedUsers?.get(deletedNote.userId) ?? this.userEntityService.pack(deletedNote.user ?? deletedNote.userId, me),
+			userId: ghostUser.id,
+			user: this.userEntityService.pack(ghostUser, me),
 			text: deletedNote.deletedAt ? "<small>Deleted note</small>" : "<small>Forgotten remote note. View on remote instance to see contents.</small>",
 			cw: null,
 			visibility: 'public',
@@ -672,7 +665,7 @@ export class NoteEntityService implements OnModuleInit {
 		const fileIds = liveNotes.map(n => [n.fileIds, n.renote?.fileIds, n.reply?.fileIds]).flat(2).filter(x => x != null);
 		const packedFiles = fileIds.length > 0 ? await this.driveFileEntityService.packManyByIdsMap(fileIds) : new Map();
 		const users = [
-			...notes.map(({ user, userId }) => user ?? userId),
+			...liveNotes.map(({ user, userId }) => user ?? userId),
 			...notes.map(({ replyUserId }) => replyUserId).filter(x => x != null),
 			...notes.map(({ renoteUserId }) => renoteUserId).filter(x => x != null),
 		];

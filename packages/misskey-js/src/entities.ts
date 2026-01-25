@@ -206,6 +206,9 @@ export type ModerationLog = {
 } | {
 	type: 'updateProxyAccountDescription';
 	info: ModerationLogPayloads['updateProxyAccountDescription'];
+} | {
+	type: 'makeNoteHome';
+	info: ModerationLogPayloads['makeNoteHome'];
 });
 
 export type ServerStats = {
@@ -294,6 +297,7 @@ export type SigninFlowRequest = {
 	'g-recaptcha-response'?: string | null;
 	'turnstile-response'?: string | null;
 	'm-captcha-response'?: string | null;
+	'testcaptcha-response'?: string | null;
 };
 
 export type SigninFlowResponse = {

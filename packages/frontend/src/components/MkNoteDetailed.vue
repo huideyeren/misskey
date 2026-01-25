@@ -5,7 +5,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 
 <template>
 <div
-	v-if="!muted && !isDeleted"
+	v-if="!muted && !hideByPlugin && !isDeleted"
 	ref="rootEl"
 	v-hotkey="keymap"
 	:class="$style.root"
@@ -45,8 +45,14 @@ SPDX-License-Identifier: AGPL-3.0-only
 	</div>
 	<article :class="$style.note" @contextmenu.stop="onContextmenu">
 		<header :class="$style.noteHeader">
-			<MkAvatar :class="$style.noteHeaderAvatar" :user="appearNote.user" indicator link preview/>
-			<div :class="$style.noteHeaderBody">
+			<div v-if="appearNote.deletedAt" :class="$style.noteHeaderAvatar"></div>
+			<MkAvatar v-else :class="$style.noteHeaderAvatar" :user="appearNote.user" indicator link preview/>
+			<div v-if="appearNote.deletedAt" :class="$style.noteHeaderBody">
+				<div :class="$style.noteHeaderName" style="opacity: 0.5;">
+					Unknown User
+				</div>
+			</div>
+			<div v-else :class="$style.noteHeaderBody">
 				<div>
 					<MkA v-user-preview="appearNote.user.id" :class="$style.noteHeaderName" :to="userPage(appearNote.user)">
 						<MkUserName :nowrap="false" :user="appearNote.user"/>
@@ -82,12 +88,14 @@ SPDX-License-Identifier: AGPL-3.0-only
 					:enableEmojiMenu="true"
 					:enableEmojiMenuReaction="true"
 				/>
-				<MkCwButton v-model="showContent" :text="appearNote.text" :renote="appearNote.renote" :files="appearNote.files" :poll="appearNote.poll"/>
+				<MkCwButton v-model="showContent" :text="appearNote.text" :isRenote="appearNote.renoteId != null" :files="appearNote.files" :poll="appearNote.poll"/>
 			</p>
 			<div v-show="appearNote.cw == null || showContent">
 				<span v-if="appearNote.isHidden" style="opacity: 0.5">({{ i18n.ts.private }})</span>
 				<MkA v-if="appearNote.replyId" :class="$style.noteReplyTarget" :to="`/notes/${appearNote.replyId}`"><i class="ti ti-arrow-back-up"></i></MkA>
-				<span v-if="note.deletedAt" style="opacity: 0.5">({{ i18n.ts.deletedNote }})</span>
+				<div v-if="appearNote.deletedAt" :class="$style.deleted">
+					{{ i18n.ts.deletedNote }}
+				</div>
 				<Mfm
 					v-else-if="appearNote.text"
 					:parsedNodes="parsed"
@@ -99,7 +107,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 					:enableEmojiMenuReaction="true"
 					class="_selectable"
 				/>
-				<a v-if="appearNote.renote != null" :class="$style.rn">RN:</a>
+				<a v-if="appearNote.renoteId != null" :class="$style.rn">RN:</a>
 				<div v-if="translating || translation" :class="$style.translation">
 					<MkLoading v-if="translating" mini/>
 					<div v-else-if="translation">
@@ -123,7 +131,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 				<div v-if="isEnabledUrlPreview">
 					<MkUrlPreview v-for="url in urls" :key="url" :url="url" :compact="true" :detail="true" style="margin-top: 6px;"/>
 				</div>
-				<div v-if="appearNote.renote" :class="$style.quote"><MkNoteSimple :note="appearNote.renote" :class="$style.quoteNote"/></div>
+				<div v-if="appearNote.renoteId" :class="$style.quote"><MkNoteSimple :note="appearNote.renote ?? null" :class="$style.quoteNote"/></div>
 			</div>
 			<MkA v-if="appearNote.channel && !inChannel" :class="$style.channel" :to="`/channels/${appearNote.channel.id}`"><i class="ti ti-device-tv"></i> {{ appearNote.channel.name }}</MkA>
 		</div>
@@ -134,7 +142,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 				</MkA>
 			</div>
 			<MkReactionsViewer
-				v-if="appearNote.reactionAcceptance !== 'likeOnly'"
+				v-if="!appearNote.deletedAt && appearNote.reactionAcceptance !== 'likeOnly'"
 				style="margin-top: 6px;"
 				:reactions="$appearNote.reactions"
 				:reactionEmojis="$appearNote.reactionEmojis"
@@ -173,12 +181,14 @@ SPDX-License-Identifier: AGPL-3.0-only
 			<button v-else :class="$style.noteFooterButton" class="_button" disabled>
 				<i class="ti ti-ban"></i>
 			</button>
-			<button v-if="prefer.s.showClipButtonInNoteFooter" ref="clipButton" class="_button" :class="$style.noteFooterButton" @mousedown.prevent="clip()">
-				<i class="ti ti-paperclip"></i>
-			</button>
-			<button v-else-if="appearNote.deletedAt" :class="$style.noteFooterButton" class="_button" disabled>
-				<i class="ti ti-ban"></i>
-			</button>
+			<template v-if="prefer.s.showClipButtonInNoteFooter">
+				<button v-if="!appearNote.deletedAt" ref="clipButton" class="_button" :class="$style.noteFooterButton" @mousedown.prevent="clip()">
+					<i class="ti ti-paperclip"></i>
+				</button>
+				<button v-else :class="$style.noteFooterButton" class="_button" disabled>
+					<i class="ti ti-ban"></i>
+				</button>
+			</template>
 			<button ref="menuButton" class="_button" :class="$style.noteFooterButton" @mousedown.prevent="showMenu()">
 				<i class="ti ti-dots"></i>
 			</button>
@@ -186,8 +196,10 @@ SPDX-License-Identifier: AGPL-3.0-only
 	</article>
 	<div :class="$style.tabs">
 		<button class="_button" :class="[$style.tab, { [$style.tabActive]: tab === 'replies' }]" @click="tab = 'replies'"><i class="ti ti-arrow-back-up"></i> {{ i18n.ts.replies }}</button>
-		<button class="_button" :class="[$style.tab, { [$style.tabActive]: tab === 'renotes' }]" @click="tab = 'renotes'"><i class="ti ti-repeat"></i> {{ i18n.ts.renotes }}</button>
-		<button class="_button" :class="[$style.tab, { [$style.tabActive]: tab === 'reactions' }]" @click="tab = 'reactions'"><i class="ti ti-icons"></i> {{ i18n.ts.reactions }}</button>
+		<template v-if="!appearNote.deletedAt">
+			<button class="_button" :class="[$style.tab, { [$style.tabActive]: tab === 'renotes' }]" @click="tab = 'renotes'"><i class="ti ti-repeat"></i> {{ i18n.ts.renotes }}</button>
+			<button class="_button" :class="[$style.tab, { [$style.tabActive]: tab === 'reactions' }]" @click="tab = 'reactions'"><i class="ti ti-icons"></i> {{ i18n.ts.reactions }}</button>
+		</template>
 	</div>
 	<div>
 		<div v-if="tab === 'replies'">
@@ -197,7 +209,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 			<MkNoteSub v-for="note in replies" :key="note.id" :note="note" :class="$style.reply" :detail="true"/>
 		</div>
 		<div v-else-if="tab === 'renotes'" :class="$style.tab_renotes">
-			<MkPagination :paginator="renotesPaginator">
+			<MkPagination :paginator="renotesPaginator" :forceDisableInfiniteScroll="true">
 				<template #default="{ items }">
 					<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(270px, 1fr)); grid-gap: 12px;">
 						<MkA v-for="item in items" :key="item.id" :to="userPage(item.user)">
@@ -214,7 +226,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 					<span style="margin-left: 4px;">{{ $appearNote.reactions[reaction] }}</span>
 				</button>
 			</div>
-			<MkPagination v-if="reactionTabType" :key="reactionTabType" :paginator="reactionsPaginator">
+			<MkPagination v-if="reactionTabType" :key="reactionTabType" :paginator="reactionsPaginator" :forceDisableInfiniteScroll="true">
 				<template #default="{ items }">
 					<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(270px, 1fr)); grid-gap: 12px;">
 						<MkA v-for="item in items" :key="item.id" :to="userPage(item.user)">
@@ -299,6 +311,7 @@ let note = deepClone(props.note);
 
 // plugin
 const noteViewInterruptors = getPluginHandlers('note_view_interruptor');
+const hideByPlugin = ref(false);
 if (noteViewInterruptors.length > 0) {
 	let result: Misskey.entities.Note | null = deepClone(note);
 	for (const interruptor of noteViewInterruptors) {
@@ -308,7 +321,11 @@ if (noteViewInterruptors.length > 0) {
 			console.error(err);
 		}
 	}
-	note = result as Misskey.entities.Note;
+	if (result == null) {
+		hideByPlugin.value = true;
+	} else {
+		note = result as Misskey.entities.Note;
+	}
 }
 
 const isRenote = Misskey.note.isPureRenote(note);
@@ -953,5 +970,15 @@ function loadConversation() {
 	padding: 8px;
 	text-align: center;
 	opacity: 0.7;
+}
+
+.deleted {
+	text-align: center;
+	padding: 32px;
+	margin: 6px 32px 32px;
+	--color: light-dark(rgba(0, 0, 0, 0.05), rgba(0, 0, 0, 0.15));
+	background-size: auto auto;
+	background-image: repeating-linear-gradient(135deg, transparent, transparent 10px, var(--color) 4px, var(--color) 14px);
+	border-radius: 8px;
 }
 </style>
