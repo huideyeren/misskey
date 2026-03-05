@@ -4,6 +4,8 @@ VRTLのブランチで行われた変更点をまとめています
 
 <!-- VV Please add changelog here VV -->
 
+- fix(frontend): VRTL関連のタイムラインの説明がチュートリアルで空欄である問題を修正 - 2026/03/05 #271
+
 --- 2025.12.2-kinel.4 released at this time ---
 
 --- 2025.12.2-kinel.3 released at this time ---
@@ -16,7 +18,7 @@ VRTLのブランチで行われた変更点をまとめています
 
 - fix(backend): VSTLでチャンネルミュートが適用されない問題を修正 - 2025/11/30 #260
 
-- --- 2025.10.2-kinel.1 released at this time ---
+--- 2025.10.2-kinel.1 released at this time ---
 --- 2025.10.1-kinel.2 released at this time ---
 --- 2025.10.1-kinel.1 released at this time ---
 --- 2025.10.0-kinel.1 released at this time ---
