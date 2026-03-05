@@ -6676,6 +6676,14 @@ export interface Locale extends ILocale {
              */
             "global": string;
             /**
+             * ぶいみみリレーに参加しているサーバーのユーザー全員の投稿を見られます。
+             */
+            "vmimi-relay": string;
+            /**
+             * ホームタイムラインとぶいみみリレータイムラインの投稿が両方表示されます。
+             */
+            "vmimi-relay-social": string;
+            /**
              * それぞれのタイムラインは、画面上部でいつでも切り替えられます。
              */
             "description2": string;
