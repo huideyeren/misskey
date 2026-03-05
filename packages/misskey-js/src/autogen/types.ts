@@ -5610,7 +5610,7 @@ export type components = {
             latestSentAt: string | null;
             latestStatus: number | null;
             name: string;
-            on: (('abuseReport' | 'abuseReportResolved' | 'userCreated' | 'inactiveModeratorsWarning' | 'inactiveModeratorsInvitationOnlyChanged') | string)[];
+            on: (('abuseReport' | 'abuseReportResolved' | 'userCreated' | 'inactiveModeratorsWarning' | 'inactiveModeratorsInvitationOnlyChanged') | `note@${string}`)[];
             url: string;
             secret: string;
         };
@@ -12221,7 +12221,7 @@ export interface operations {
                 'application/json': {
                     isActive: boolean;
                     name: string;
-                    on: (('abuseReport' | 'abuseReportResolved' | 'userCreated' | 'inactiveModeratorsWarning' | 'inactiveModeratorsInvitationOnlyChanged') | string)[];
+                    on: (('abuseReport' | 'abuseReportResolved' | 'userCreated' | 'inactiveModeratorsWarning' | 'inactiveModeratorsInvitationOnlyChanged') | `note@${string}`)[];
                     url: string;
                     /** @default  */
                     secret?: string;
@@ -12353,7 +12353,7 @@ export interface operations {
             content: {
                 'application/json': {
                     isActive?: boolean;
-                    on?: (('abuseReport' | 'abuseReportResolved' | 'userCreated' | 'inactiveModeratorsWarning' | 'inactiveModeratorsInvitationOnlyChanged') | string)[];
+                    on?: (('abuseReport' | 'abuseReportResolved' | 'userCreated' | 'inactiveModeratorsWarning' | 'inactiveModeratorsInvitationOnlyChanged') | `note@${string}`)[];
                 };
             };
         };
@@ -12486,7 +12486,7 @@ export interface operations {
                 'application/json': {
                     /** Format: misskey:id */
                     webhookId: string;
-                    type: ('abuseReport' | 'abuseReportResolved' | 'userCreated' | 'inactiveModeratorsWarning' | 'inactiveModeratorsInvitationOnlyChanged') | string;
+                    type: ('abuseReport' | 'abuseReportResolved' | 'userCreated' | 'inactiveModeratorsWarning' | 'inactiveModeratorsInvitationOnlyChanged') | `note@${string}`;
                     override?: {
                         url?: string;
                         secret?: string;
@@ -12565,7 +12565,7 @@ export interface operations {
                     id: string;
                     isActive: boolean;
                     name: string;
-                    on: (('abuseReport' | 'abuseReportResolved' | 'userCreated' | 'inactiveModeratorsWarning' | 'inactiveModeratorsInvitationOnlyChanged') | string)[];
+                    on: (('abuseReport' | 'abuseReportResolved' | 'userCreated' | 'inactiveModeratorsWarning' | 'inactiveModeratorsInvitationOnlyChanged') | `note@${string}`)[];
                     url: string;
                     /** @default  */
                     secret?: string;

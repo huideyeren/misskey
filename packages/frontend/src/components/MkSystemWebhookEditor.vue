@@ -69,7 +69,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 							</div>
 
 							<!-- Nirila's user's note events -->
-							<template v-for="ev of Object.keys(events)" :key="ev">
+							<template v-for="ev of (Object.keys(events) as (keyof EventType)[])" :key="ev">
 								<div v-if="ev.startsWith('note@')" :class="$style.switchBox">
 									<MkSwitch v-model="events[ev]">
 										<template v-if="getUserMention(ev.substring(5))" #label>User: <Mfm :text="getUserMention(ev.substring(5))!" :linkNavigationBehavior="'window'"/></template>
@@ -128,6 +128,8 @@ type EventType = {
 	userCreated: boolean;
 	inactiveModeratorsWarning: boolean;
 	inactiveModeratorsInvitationOnlyChanged: boolean;
+} & {
+	[P in `note@${string}`]: boolean; // Nirila's extension for user-specific note events
 };
 
 const emit = defineEmits<{
@@ -261,7 +263,7 @@ onMounted(async () => {
 					for (const ev of Object.keys(events.value)) {
 						events.value[ev as SystemWebhookEventType] = res.on.includes(ev as SystemWebhookEventType);
 					}
-					res.on.filter(ev => ev.startsWith('note@')).forEach(ev => events.value[ev] = true);
+					res.on.filter(ev => ev.startsWith('note@')).forEach(ev => events.value[ev as `note@${string}`] = true);
 					// eslint-disable-next-line @typescript-eslint/no-explicit-any
 				} catch (ex: any) {
 					const msg = ex.message ?? i18n.ts.internalServerErrorDescription;
@@ -286,7 +288,7 @@ const userInfoCache = ref<Partial<Record<string, Misskey.entities.UserLite | typ
 function addUser() {
 	os.selectUser().then(value => {
 		events.value[`note@${value.id}`] = true;
-		userInfoCache[value.id] = value;
+		userInfoCache.value[value.id] = value;
 	});
 }
 
