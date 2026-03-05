@@ -9718,6 +9718,10 @@ export interface Locale extends ILocale {
          * ダイレクトメッセージを閲覧する
          */
         "read:chat": string;
+        /**
+         * ユーザの削除ログにアクセスする(にりみす機能)
+         */
+        "read:admin:nirila-delete-user-log-access": string;
     };
     "_auth": {
         /**

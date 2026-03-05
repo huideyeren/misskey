@@ -2552,6 +2552,7 @@ _permissions:
   "write:report-abuse": "違反を報告する"
   "write:chat": "ダイレクトメッセージを操作する"
   "read:chat": "ダイレクトメッセージを閲覧する"
+  "read:admin:nirila-delete-user-log-access": "ユーザの削除ログにアクセスする(にりみす機能)"
 
 _auth:
   shareAccessTitle: "アプリへのアクセス許可"
