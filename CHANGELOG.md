@@ -1,4 +1,9 @@
-## 2026.3.0
+## 2026.3.0-kinel.1
+
+### Client
+- Fix: VRTL関連のタイムラインの説明がチュートリアルで空欄である問題を修正
+
+## 2026.3.0 (merged to 2026.3.0-kinel.1)
 
 ### Note
 - `users/following` の `birthday` プロパティは非推奨になりました。代わりに `users/get-following-users-by-birthday` をご利用ください。
