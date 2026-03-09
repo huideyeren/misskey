@@ -4,6 +4,8 @@ VRTLのブランチで行われた変更点をまとめています
 
 <!-- VV Please add changelog here VV -->
 
+--- 2026.3.1-kinel.1 released at this time ---
+
 --- 2026.3.0-kinel.1 released at this time ---
 
 - fix(frontend): VRTL関連のタイムラインの説明がチュートリアルで空欄である問題を修正 - 2026/03/05 #271
