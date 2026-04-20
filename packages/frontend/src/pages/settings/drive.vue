@@ -177,31 +177,6 @@ SPDX-License-Identifier: AGPL-3.0-only
 						</MkFolder>
 					</SearchMarker>
 
-				<SearchMarker :keywords="['default','open']">
-					<MkFolder :defaultOpen="true">
-						<template #icon><i class="ti ti-photo"></i></template>
-						<template #label>{{ i18n.ts._imageCompressionMode.title }}</template>
-						<template #caption>{{ i18n.ts._imageCompressionMode.description }}</template>
-
-						<div class="_gaps">
-							<MkSwitch v-model="imageResize">
-								<template #label>{{ i18n.ts._imageCompressionMode.imageResize }}</template>
-								<template #caption>{{ i18n.ts._imageCompressionMode.imageResizeDescription }}</template>
-							</MkSwitch>
-							<MkSelect v-model="imageResizeSize">
-								<template #label>{{ i18n.ts._imageCompressionMode._imageResizeSize.title }}</template>
-								<option value="2048">{{ i18n.ts._imageCompressionMode._imageResizeSize.max2048 }}</option>
-								<option value="2560">{{ i18n.ts._imageCompressionMode._imageResizeSize.max2560 }}</option>
-								<option value="4096">{{ i18n.ts._imageCompressionMode._imageResizeSize.max4096 }}</option>
-								<option value="8192">{{ i18n.ts._imageCompressionMode._imageResizeSize.max8192 }}</option>
-							</MkSelect>
-							<MkSwitch v-model="imageCompressionLossy">
-								<template #label>{{ i18n.ts._imageCompressionMode.imageCompressionLossy }}</template>
-								<template #caption>{{ i18n.ts._imageCompressionMode.imageCompressionLossyDescription }}</template>
-							</MkSwitch>
-						</div>
-					</MkFolder>
-				</SearchMarker>
 					<!-- This fork does not use defaultImageCompressionLevel, use imageCompressionMode and imageResizeSize above instead
 					<SearchMarker :keywords="['default', 'image', 'compression']">
 						<MkPreferenceContainer k="defaultImageCompressionLevel">
