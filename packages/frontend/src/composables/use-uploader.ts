@@ -802,13 +802,13 @@ export function useUploader(options: {
 			const compressLossy = item.compressMode === 'lossy' || item.compressMode === 'lossyWhenResize';
 			const { compressedFormat, compressedQuality } = isWebpSupported()
 				? {
-					compressedFormat: 'image/webp',
+					compressedFormat: 'image/webp' as const,
 					compressedQuality: compressLossy ? 0.85 : 1.0,
 				} : compressLossy ? {
-					compressedFormat: 'image/jpeg',
+					compressedFormat: 'image/jpeg' as const,
 					compressedQuality: 0.8,
 				} : {
-					compressedFormat: 'image/png',
+					compressedFormat: 'image/png' as const,
 					compressedQuality: 1.0,
 				};
 

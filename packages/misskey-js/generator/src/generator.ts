@@ -52,6 +52,19 @@ async function generateBaseTypes(
 					return tsBlobNode;
 				}
 			}
+			// nirila extension: we use `note@` for webhook event type
+			if (schemaObject.type === 'string' && 'pattern' in schemaObject && '^note@[a-zA-Z0-9]{1,20}$' === schemaObject.pattern) {
+				// `note@${string}`
+				return ts.factory.createTemplateLiteralType(
+					ts.factory.createTemplateHead('note@'),
+					[
+						ts.factory.createTemplateLiteralTypeSpan(
+							ts.factory.createKeywordTypeNode(ts.SyntaxKind.StringKeyword),
+							ts.factory.createTemplateTail(''),
+						),
+					],
+				);
+			}
 		},
 	});
 
