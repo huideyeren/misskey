@@ -39,14 +39,12 @@ SPDX-License-Identifier: AGPL-3.0-only
 		</div>
 	</div>
 	<div v-if="renoteCollapsed" :class="$style.collapsedRenoteTarget">
-		<div v-if="appearNote.deletedAt" :class="$style.collapsedRenoteTargetAvatar"></div>
-		<MkAvatar v-else :class="$style.collapsedRenoteTargetAvatar" :user="appearNote.user" link preview/>
+		<MkNoteUserAvatar :class="$style.collapsedRenoteTargetAvatar" :note="appearNote" link preview/>
 		<Mfm :text="getNoteSummary(appearNote)" :plain="true" :nowrap="true" :author="appearNote.user" :nyaize="'respect'" :class="$style.collapsedRenoteTargetText" @click="renoteCollapsed = false"/>
 	</div>
 	<article v-else :class="$style.article" @contextmenu.stop="onContextmenu">
 		<div v-if="appearNote.channel" :class="$style.colorBar" :style="{ background: appearNote.channel.color }"></div>
-		<div v-if="appearNote.deletedAt" :class="[$style.avatar, prefer.s.useStickyIcons ? $style.useSticky : null]"></div>
-		<MkAvatar v-else :class="[$style.avatar, prefer.s.useStickyIcons ? $style.useSticky : null]" :user="appearNote.user" :link="!mock" :preview="!mock"/>
+		<MkNoteUserAvatar :class="[$style.avatar, prefer.s.useStickyIcons ? $style.useSticky : null]" :note="appearNote" :link="!mock" :preview="!mock"/>
 		<div :class="$style.main">
 			<MkNoteHeader :note="appearNote" :mini="true"/>
 			<MkInstanceTicker v-if="!appearNote.deletedAt && showTicker" :host="appearNote.user.host" :instance="appearNote.user.instance"/>
@@ -175,34 +173,22 @@ SPDX-License-Identifier: AGPL-3.0-only
 <div v-else-if="!hardMuted && !hideByPlugin" :class="$style.muted" @click="muted = false">
 	<I18n v-if="muted === 'sensitiveMute'" :src="i18n.ts.userSaysSomethingSensitive" tag="small">
 		<template #name>
-			<span v-if="appearNote.deletedAt" style="opacity: 0.5;">Unknown User</span>
-			<MkA v-else v-user-preview="appearNote.userId" :to="userPage(appearNote.user)">
-				<MkUserName :user="appearNote.user"/>
-			</MkA>
+			<MkNoteUserName :note="appearNote"/>
 		</template>
 	</I18n>
 	<I18n v-else-if="muted === 'sensitiveChannel'" :src="i18n.ts.userSaysSomethingInSensitiveChannel" tag="small">
 		<template #name>
-			<span v-if="appearNote.deletedAt" style="opacity: 0.5;">Unknown User</span>
-			<MkA v-else v-user-preview="appearNote.userId" :to="userPage(appearNote.user)">
-				<MkUserName :user="appearNote.user"/>
-			</MkA>
+			<MkNoteUserName :note="appearNote"/>
 		</template>
 	</I18n>
 	<I18n v-else-if="showSoftWordMutedWord !== true" :src="i18n.ts.userSaysSomething" tag="small">
 		<template #name>
-			<span v-if="appearNote.deletedAt" style="opacity: 0.5;">Unknown User</span>
-			<MkA v-else v-user-preview="appearNote.userId" :to="userPage(appearNote.user)">
-				<MkUserName :user="appearNote.user"/>
-			</MkA>
+			<MkNoteUserName :note="appearNote"/>
 		</template>
 	</I18n>
 	<I18n v-else :src="i18n.ts.userSaysSomethingAbout" tag="small">
 		<template #name>
-			<span v-if="appearNote.deletedAt" style="opacity: 0.5;">Unknown User</span>
-			<MkA v-else v-user-preview="appearNote.userId" :to="userPage(appearNote.user)">
-				<MkUserName :user="appearNote.user"/>
-			</MkA>
+			<MkNoteUserName :note="appearNote"/>
 		</template>
 		<template #word>
 			{{ Array.isArray(muted) ? muted.map(words => Array.isArray(words) ? words.join() : words).slice(0, 3).join(' ') : muted }}
@@ -231,6 +217,8 @@ import type { Keymap } from '@/utility/hotkey.js';
 import MkNoteSub from '@/components/MkNoteSub.vue';
 import MkNoteHeader from '@/components/MkNoteHeader.vue';
 import MkNoteSimple from '@/components/MkNoteSimple.vue';
+import MkNoteUserAvatar from '@/components/MkNoteUserAvatar.vue';
+import MkNoteUserName from '@/components/MkNoteUserName.vue';
 import MkReactionsViewer from '@/components/MkReactionsViewer.vue';
 import MkReactionsViewerDetails from '@/components/MkReactionsViewer.details.vue';
 import MkMediaList from '@/components/MkMediaList.vue';
@@ -242,7 +230,6 @@ import MkInstanceTicker from '@/components/MkInstanceTicker.vue';
 import { pleaseLogin } from '@/utility/please-login.js';
 import { checkWordMute } from '@/utility/check-word-mute.js';
 import { notePage } from '@/filters/note.js';
-import { userPage } from '@/filters/user.js';
 import number from '@/filters/number.js';
 import * as os from '@/os.js';
 import * as sound from '@/utility/sound.js';

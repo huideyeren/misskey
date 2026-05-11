@@ -10,6 +10,8 @@ import './init';
 import { preferState } from './init';
 import type * as Misskey from 'misskey-js';
 import MkNote from '@/components/MkNote.vue';
+import MkNoteUserAvatar from '@/components/MkNoteUserAvatar.vue';
+import MkNoteUserName from '@/components/MkNoteUserName.vue';
 
 vi.mock('@/composables/use-note-capture.js', () => {
 	return {
@@ -36,6 +38,75 @@ vi.mock('@/plugin.js', () => {
 });
 
 describe('MkNote deleted note rendering', () => {
+	const deletedNote = {
+		id: 'deleted-note',
+		createdAt: '2026-01-01T00:00:00.000Z',
+		userId: 'ghost-user',
+		user: {
+			id: 'ghost-user',
+			name: 'Ghost User',
+			username: 'ghost',
+			host: 'ghost.example',
+			instance: {
+				name: 'Ghost Instance',
+			},
+			isBot: false,
+			badgeRoles: [],
+			avatarUrl: 'https://example.com/avatar.png',
+			avatarBlurhash: null,
+			avatarDecorations: [],
+		},
+		visibility: 'public',
+		localOnly: false,
+		text: null,
+		cw: null,
+		replyId: null,
+		reply: null,
+		renoteId: null,
+		renote: null,
+		channel: null,
+		isHidden: false,
+		deletedAt: '2026-01-01T00:01:00.000Z',
+		files: [],
+		poll: null,
+		emojis: {},
+		repliesCount: 0,
+		renoteCount: 0,
+		reactionAcceptance: 'likeOnly',
+	} as Misskey.entities.Note;
+
+	const activeNote = {
+		...deletedNote,
+		deletedAt: null,
+	} as Misskey.entities.Note;
+
+	const globalOptions = {
+		directives: {
+			hotkey: {},
+			tooltip: {},
+			'user-preview': {},
+		},
+		stubs: {
+			I18n: { template: '<span><slot name="name" /><slot name="word" /></span>' },
+			MkA: { template: '<a><slot /></a>' },
+			MkAcct: { props: ['user'], template: '<span>@{{ user?.username }}</span>' },
+			MkAvatar: { props: ['user'], template: '<div data-testid="avatar">{{ user?.name }}</div>' },
+			MkCwButton: true,
+			MkInstanceTicker: { props: ['host'], template: '<div data-testid="instance-ticker">{{ host }}</div>' },
+			MkLoading: true,
+			MkMediaList: true,
+			MkNoteSimple: true,
+			MkNoteSub: true,
+			MkPoll: true,
+			MkReactionsViewer: true,
+			MkRippleEffect: true,
+			MkTime: { template: '<time />' },
+			MkUrlPreview: true,
+			MkUserName: { props: ['user'], template: '<span>{{ user?.name }}</span>' },
+			Mfm: { props: ['text'], template: '<span>{{ text }}</span>' },
+		},
+	};
+
 	afterEach(() => {
 		cleanup();
 		preferState.instanceTicker = false;
@@ -44,79 +115,48 @@ describe('MkNote deleted note rendering', () => {
 	test('should hide ghost user avatar and ticker for deleted notes', () => {
 		preferState.instanceTicker = 'always';
 
-		const deletedNote = {
-			id: 'deleted-note',
-			createdAt: '2026-01-01T00:00:00.000Z',
-			userId: 'ghost-user',
-			user: {
-				id: 'ghost-user',
-				name: 'Ghost User',
-				username: 'ghost',
-				host: 'ghost.example',
-				instance: {
-					name: 'Ghost Instance',
-				},
-				isBot: false,
-				badgeRoles: [],
-				avatarUrl: 'https://example.com/avatar.png',
-				avatarBlurhash: null,
-				avatarDecorations: [],
-			},
-			visibility: 'public',
-			localOnly: false,
-			text: null,
-			cw: null,
-			replyId: null,
-			reply: null,
-			renoteId: null,
-			renote: null,
-			channel: null,
-			isHidden: false,
-			deletedAt: '2026-01-01T00:01:00.000Z',
-			files: [],
-			poll: null,
-			emojis: {},
-			repliesCount: 0,
-			renoteCount: 0,
-			reactionAcceptance: 'likeOnly',
-		} as Misskey.entities.Note;
-
 		const note = render(MkNote, {
 			props: {
 				note: deletedNote,
 				mock: true,
 			},
-			global: {
-				directives: {
-					hotkey: {},
-					tooltip: {},
-					'user-preview': {},
-				},
-				stubs: {
-					I18n: { template: '<span><slot name="name" /><slot name="word" /></span>' },
-					MkA: { template: '<a><slot /></a>' },
-					MkAcct: { props: ['user'], template: '<span>@{{ user?.username }}</span>' },
-					MkAvatar: { props: ['user'], template: '<div data-testid="avatar">{{ user?.name }}</div>' },
-					MkCwButton: true,
-					MkInstanceTicker: { props: ['host'], template: '<div data-testid="instance-ticker">{{ host }}</div>' },
-					MkLoading: true,
-					MkMediaList: true,
-					MkNoteSimple: true,
-					MkNoteSub: true,
-					MkPoll: true,
-					MkReactionsViewer: true,
-					MkRippleEffect: true,
-					MkTime: { template: '<time />' },
-					MkUrlPreview: true,
-					MkUserName: { props: ['user'], template: '<span>{{ user?.name }}</span>' },
-					Mfm: { props: ['text'], template: '<span>{{ text }}</span>' },
-				},
-			},
+			global: globalOptions,
 		});
 
 		assert.ok(note.getByText('Unknown User'));
 		assert.strictEqual(note.queryByTestId('avatar'), null);
 		assert.strictEqual(note.queryByTestId('instance-ticker'), null);
 		assert.strictEqual(note.queryByText('Ghost User'), null);
+	});
+
+	test('MkNoteUserAvatar should only render an avatar for active notes', () => {
+		const deleted = render(MkNoteUserAvatar, {
+			props: { note: deletedNote, link: true, preview: true },
+			global: globalOptions,
+		});
+		assert.strictEqual(deleted.queryByTestId('avatar'), null);
+		cleanup();
+
+		const active = render(MkNoteUserAvatar, {
+			props: { note: activeNote, link: true, preview: true },
+			global: globalOptions,
+		});
+		assert.ok(active.getByTestId('avatar'));
+		assert.ok(active.getByText('Ghost User'));
+	});
+
+	test('MkNoteUserName should fall back to Unknown User for deleted notes', () => {
+		const deleted = render(MkNoteUserName, {
+			props: { note: deletedNote },
+			global: globalOptions,
+		});
+		assert.ok(deleted.getByText('Unknown User'));
+		cleanup();
+
+		const active = render(MkNoteUserName, {
+			props: { note: activeNote },
+			global: globalOptions,
+		});
+		assert.ok(active.getByText('Ghost User'));
 	});
 });
