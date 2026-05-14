@@ -45,6 +45,7 @@ import * as os from '@/os.js';
 import { i18n } from '@/i18n.js';
 import { hasWithReplies, isAvailableBasicTimeline, basicTimelineIconClass, hasWithLocalOnly } from '@/timelines.js';
 import { soundSettingsButton } from '@/ui/deck/tl-note-notification.js';
+import { openPastTimelineWindow } from '@/ui/deck/past-timeline-window.js';
 
 const props = defineProps<{
 	column: Column;
@@ -130,6 +131,20 @@ async function setType() {
 	});
 }
 
+function openPastTimeline() {
+	if (props.column.tl == null || !isAvailableBasicTimeline(props.column.tl)) return;
+
+	void openPastTimelineWindow({
+		src: props.column.tl,
+		title: props.column.name || i18n.ts._timelines[props.column.tl],
+		withRenotes: withRenotes.value,
+		withReplies: withReplies.value,
+		withSensitive: withSensitive.value,
+		withLocalOnly: withLocalOnly.value,
+		onlyFiles: onlyFiles.value,
+	});
+}
+
 const menu = computed<MenuItem[]>(() => {
 	const menuItems: MenuItem[] = [];
 
@@ -141,7 +156,17 @@ const menu = computed<MenuItem[]>(() => {
 		icon: 'ti ti-bell',
 		text: i18n.ts._deck.newNoteNotificationSettings,
 		action: () => soundSettingsButton(soundSetting),
-	}, {
+	});
+
+	if (props.column.tl != null && isAvailableBasicTimeline(props.column.tl)) {
+		menuItems.push({
+			icon: 'ti ti-calendar-time',
+			text: i18n.ts.jumpToSpecifiedDate,
+			action: openPastTimeline,
+		});
+	}
+
+	menuItems.push({
 		type: 'switch',
 		text: i18n.ts.showRenotes,
 		ref: withRenotes,
