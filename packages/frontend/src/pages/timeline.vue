@@ -46,7 +46,7 @@ import { deepMerge } from '@/utility/merge.js';
 import { miLocalStorage } from '@/local-storage.js';
 import { availableBasicTimelines, hasWithReplies, hasWithLocalOnly, isAvailableBasicTimeline, isBasicTimeline, basicTimelineIconClass } from '@/timelines.js';
 import { prefer } from '@/preferences.js';
-import { openPastTimelineWindow } from '@/ui/deck/past-timeline-window.js';
+import { openPastTimelineWindow } from '@/utility/past-timeline-window.js';
 
 const tlComponent = useTemplateRef('tlComponent');
 

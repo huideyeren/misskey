@@ -99,7 +99,7 @@ import { notesSearchAvailable } from '@/utility/check-permissions.js';
 import { miLocalStorage } from '@/local-storage.js';
 import { useRouter } from '@/router.js';
 import { Paginator } from '@/utility/paginator.js';
-import { openPastTimelineWindow } from '@/ui/deck/past-timeline-window.js';
+import { openPastTimelineWindow } from '@/utility/past-timeline-window.js';
 
 const router = useRouter();
 

@@ -4,7 +4,7 @@
  */
 
 import { describe, expect, it } from 'vitest';
-import { formatDatetimeLocal } from '@/ui/deck/past-timeline-window.js';
+import { formatDatetimeLocal } from '@/utility/past-timeline-window.js';
 
 describe('deck past timeline window', () => {
 	it('formats a Date for datetime-local input using local time', () => {

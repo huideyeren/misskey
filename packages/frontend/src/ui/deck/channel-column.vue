@@ -33,7 +33,7 @@ import { favoritedChannelsCache } from '@/cache.js';
 import { misskeyApi } from '@/utility/misskey-api.js';
 import { i18n } from '@/i18n.js';
 import { soundSettingsButton } from '@/ui/deck/tl-note-notification.js';
-import { openPastTimelineWindow } from '@/ui/deck/past-timeline-window.js';
+import { openPastTimelineWindow } from '@/utility/past-timeline-window.js';
 
 const props = defineProps<{
 	column: Column;
