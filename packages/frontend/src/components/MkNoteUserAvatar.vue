@@ -4,16 +4,12 @@ SPDX-License-Identifier: AGPL-3.0-only
 -->
 
 <template>
-<div v-if="note == null || note.deletedAt" v-bind="$attrs"></div>
-<MkAvatar v-else v-bind="$attrs" :user="note.user" :indicator="indicator" :link="link" :preview="preview"/>
+<div v-if="note == null || note.deletedAt"></div>
+<MkAvatar v-else :user="note.user" :indicator="indicator" :link="link" :preview="preview"/>
 </template>
 
 <script lang="ts" setup>
 import * as Misskey from 'misskey-js';
-
-defineOptions({
-	inheritAttrs: false,
-});
 
 withDefaults(defineProps<{
 	note: Misskey.entities.Note | null;

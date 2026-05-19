@@ -132,31 +132,39 @@ describe('MkNote deleted note rendering', () => {
 	test('MkNoteUserAvatar should only render an avatar for active notes', () => {
 		const deleted = render(MkNoteUserAvatar, {
 			props: { note: deletedNote, link: true, preview: true },
+			attrs: { class: 'ghost-avatar' },
 			global: globalOptions,
 		});
 		assert.strictEqual(deleted.queryByTestId('avatar'), null);
+		assert.ok(deleted.container.querySelector('.ghost-avatar'));
 		cleanup();
 
 		const active = render(MkNoteUserAvatar, {
 			props: { note: activeNote, link: true, preview: true },
+			attrs: { class: 'ghost-avatar' },
 			global: globalOptions,
 		});
 		assert.ok(active.getByTestId('avatar'));
 		assert.ok(active.getByText('Ghost User'));
+		assert.ok(active.container.querySelector('.ghost-avatar'));
 	});
 
 	test('MkNoteUserName should fall back to Unknown User for deleted notes', () => {
 		const deleted = render(MkNoteUserName, {
 			props: { note: deletedNote },
+			attrs: { class: 'ghost-name' },
 			global: globalOptions,
 		});
 		assert.ok(deleted.getByText('Unknown User'));
+		assert.ok(deleted.container.querySelector('.ghost-name'));
 		cleanup();
 
 		const active = render(MkNoteUserName, {
 			props: { note: activeNote },
+			attrs: { class: 'ghost-name' },
 			global: globalOptions,
 		});
 		assert.ok(active.getByText('Ghost User'));
+		assert.ok(active.container.querySelector('.ghost-name'));
 	});
 });
