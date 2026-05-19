@@ -32,7 +32,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 <div v-else-if="note" :class="$style.muted" @click="muted = false">
 	<I18n :src="i18n.ts.userSaysSomething" tag="small">
 		<template #name>
-			<MkNoteUserName :note="note"/>
+			<MkNoteUserName :note="note" link/>
 		</template>
 	</I18n>
 </div>

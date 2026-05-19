@@ -14,7 +14,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 		</div>
 	</template>
 	<template v-else>
-		<MkNoteUserName :class="$style.name" :note="note" :link="false"/>
+		<MkNoteUserName :class="$style.name" :note="note"/>
 	</template>
 	<div v-if="note" :class="$style.info">
 		<div v-if="mock">

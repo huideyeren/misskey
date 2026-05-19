@@ -173,17 +173,17 @@ SPDX-License-Identifier: AGPL-3.0-only
 <div v-else-if="!hardMuted && !hideByPlugin" :class="$style.muted" @click="muted = false">
 	<I18n v-if="muted === 'sensitiveMute'" :src="i18n.ts.userSaysSomethingSensitive" tag="small">
 		<template #name>
-			<MkNoteUserName :note="appearNote"/>
+			<MkNoteUserName :note="appearNote" link/>
 		</template>
 	</I18n>
 	<I18n v-else-if="muted === 'sensitiveChannel'" :src="i18n.ts.userSaysSomethingInSensitiveChannel" tag="small">
 		<template #name>
-			<MkNoteUserName :note="appearNote"/>
+			<MkNoteUserName :note="appearNote" link/>
 		</template>
 	</I18n>
 	<I18n v-else-if="showSoftWordMutedWord !== true" :src="i18n.ts.userSaysSomething" tag="small">
 		<template #name>
-			<MkNoteUserName :note="appearNote"/>
+			<MkNoteUserName :note="appearNote" link/>
 		</template>
 	</I18n>
 	<I18n v-else :src="i18n.ts.userSaysSomethingAbout" tag="small">
