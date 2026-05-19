@@ -1,12 +1,14 @@
-## 2026.5.3
-
-### General
-- Fix: Dockerで起動に失敗する問題を修正
+## 2026.5.3-kinel.1
 
 ### Client
 - Feat: 指定日時の過去タイムラインを開けるように
 
-## 2026.5.2
+## 2026.5.3 (merged to 2026.5.3-kinel.1)
+
+### General
+- Fix: Dockerで起動に失敗する問題を修正
+
+## 2026.5.2 (merged to 2026.5.3-kinel.1)
 
 ### Note
 - config に `threadPoolSize` オプションが追加されました。
@@ -33,7 +35,7 @@
 - Enhance: RSA 署名処理のオフロード
 
 
-## 2026.5.1
+## 2026.5.1 (merged to 2026.5.3-kinel.1)
 
 ### General
 - Enhance: チャンネルの作成の可否をロールポリシーで制御できるように
@@ -50,7 +52,7 @@
 - Fix: URLプレビューが動作しない問題を修正
 
 
-## 2026.5.0
+## 2026.5.0 (merged to 2026.5.3-kinel.1)
 
 ### General
 - Enhance: アバターデコレーションにカテゴリを設定できるように
