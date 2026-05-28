@@ -3037,6 +3037,14 @@ export interface Locale extends ILocale {
      */
     "confirmToUnclipAlreadyClippedNote": ParameterizedString<"name">;
     /**
+     * このアンテナから削除
+     */
+    "removeFromAntenna": string;
+    /**
+     * 「{name}」からこのノートを削除しますか？
+     */
+    "removeNoteFromAntennaConfirm": ParameterizedString<"name">;
+    /**
      * パブリック
      */
     "public": string;
