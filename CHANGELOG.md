@@ -1,3 +1,15 @@
+## Unreleased
+
+### General
+- Feat: アンテナのタイムラインから個別のノートを削除できるように
+  (Cherry-picked from https://github.com/misskey-dev/misskey/pull/17463)
+
+### Client
+- 
+
+### Server
+- 
+
 ## 2026.5.4-kinel.1
 
 ## 2026.5.4 (merged to 2026.5.4-kinel.1)
