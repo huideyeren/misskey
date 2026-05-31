@@ -288,6 +288,16 @@ const headerActions = computed<PageHeaderItem[]>(() => {
 				});
 			}
 
+			if (deviceKind !== 'desktop') {
+				menuItems.push({
+					type: 'divider',
+				}, {
+					icon: 'ti ti-calendar-time',
+					text: i18n.ts.jumpToSpecifiedDate,
+					action: openPastTimeline,
+				});
+			}
+
 			os.popupMenu(menuItems, ev.currentTarget ?? ev.target);
 		},
 	}];
@@ -300,13 +310,13 @@ const headerActions = computed<PageHeaderItem[]>(() => {
 				tlComponent.value?.reloadTimeline();
 			},
 		});
-	}
 
-	items.unshift({
-		icon: 'ti ti-calendar-time',
-		text: i18n.ts.jumpToSpecifiedDate,
-		handler: openPastTimeline,
-	});
+		items.unshift({
+			icon: 'ti ti-calendar-time',
+			text: i18n.ts.jumpToSpecifiedDate,
+			handler: openPastTimeline,
+		});
+	}
 
 	return items;
 });
