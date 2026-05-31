@@ -1,3 +1,15 @@
+## Unreleased
+
+### General
+- 
+
+### Client
+- 
+
+### Server
+- Fix: フォロワー限定投稿を指名投稿で引用した際に、引用した投稿の公開範囲が意図せず変更される問題を修正
+  (Cherry-picked from https://github.com/misskey-dev/misskey/pull/15961)
+
 ## 2026.5.4-kinel.1
 
 ## 2026.5.4 (merged to 2026.5.4-kinel.1)
