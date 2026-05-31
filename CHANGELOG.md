@@ -1,3 +1,15 @@
+## Unreleased
+
+### General
+- Feat: ノート検索で投稿日時の期間を条件に加えられるように
+  (Cherry-picked from https://github.com/misskey-dev/misskey/pull/16119)
+
+### Client
+- 
+
+### Server
+- 
+
 ## 2026.5.4-kinel.1
 
 ## 2026.5.4 (merged to 2026.5.4-kinel.1)
