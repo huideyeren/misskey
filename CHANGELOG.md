@@ -1,7 +1,8 @@
 ## Unreleased
 
 ### General
-- 
+- Feat: ノート検索で投稿日時の期間を条件に加えられるように
+  (Cherry-picked from https://github.com/misskey-dev/misskey/pull/16119)
 
 ### Client
 - Enhance: スマートフォン表示時のタイムマシンボタンを三点リーダーメニュー内に移動
