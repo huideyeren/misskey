@@ -123,7 +123,7 @@ export default class extends Endpoint<typeof meta, typeof paramDef> { // eslint-
 				this.fanoutTimelineService.removeWithPipeline('localTimelineWithReplies', note.id, redisPipeline);
 				this.fanoutTimelineService.removeWithPipeline(`localTimelineWithReplyTo:${note.replyUserId}`, note.id, redisPipeline);
 				this.fanoutTimelineService.removeWithPipeline('vmimiRelayTimelineWithReplies', note.id, redisPipeline);
-				//this.fanoutTimelineService.remove(`vmimiRelayTimelineWithReplyTo:${note.replyUserId}`, note.id, redisPipeline);
+				//this.fanoutTimelineService.removeWithPipeline(`vmimiRelayTimelineWithReplyTo:${note.replyUserId}`, note.id, redisPipeline);
 			}
 			if (note.fileIds.length > 0) {
 				this.fanoutTimelineService.removeWithPipeline('localTimelineWithFiles', note.id, redisPipeline);
