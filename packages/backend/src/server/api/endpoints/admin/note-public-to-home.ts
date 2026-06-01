@@ -117,21 +117,21 @@ export default class extends Endpoint<typeof meta, typeof paramDef> { // eslint-
 
 			// remove from funout local timeline
 			const redisPipeline = this.redisForTimelines.pipeline();
-			this.fanoutTimelineService.remove('localTimeline', note.id, redisPipeline);
-			this.fanoutTimelineService.remove('vmimiRelayTimeline', note.id, redisPipeline);
+			this.fanoutTimelineService.removeWithPipeline('localTimeline', note.id, redisPipeline);
+			this.fanoutTimelineService.removeWithPipeline('vmimiRelayTimeline', note.id, redisPipeline);
 			if (note.replyId) {
-				this.fanoutTimelineService.remove('localTimelineWithReplies', note.id, redisPipeline);
-				this.fanoutTimelineService.remove(`localTimelineWithReplyTo:${note.replyUserId}`, note.id, redisPipeline);
-				this.fanoutTimelineService.remove('vmimiRelayTimelineWithReplies', note.id, redisPipeline);
-				//this.fanoutTimelineService.remove(`vmimiRelayTimelineWithReplyTo:${note.replyUserId}`, note.id, redisPipeline);
+				this.fanoutTimelineService.removeWithPipeline('localTimelineWithReplies', note.id, redisPipeline);
+				this.fanoutTimelineService.removeWithPipeline(`localTimelineWithReplyTo:${note.replyUserId}`, note.id, redisPipeline);
+				this.fanoutTimelineService.removeWithPipeline('vmimiRelayTimelineWithReplies', note.id, redisPipeline);
+				//this.fanoutTimelineService.removeWithPipeline(`vmimiRelayTimelineWithReplyTo:${note.replyUserId}`, note.id, redisPipeline);
 			}
 			if (note.fileIds.length > 0) {
-				this.fanoutTimelineService.remove('localTimelineWithFiles', note.id, redisPipeline);
-				this.fanoutTimelineService.remove('vmimiRelayTimelineWithFiles', note.id, redisPipeline);
+				this.fanoutTimelineService.removeWithPipeline('localTimelineWithFiles', note.id, redisPipeline);
+				this.fanoutTimelineService.removeWithPipeline('vmimiRelayTimelineWithFiles', note.id, redisPipeline);
 			}
 			for (const renote of renotes) {
-				this.fanoutTimelineService.remove('localTimeline', renote.id, redisPipeline);
-				this.fanoutTimelineService.remove('vmimiRelayTimeline', renote.id, redisPipeline);
+				this.fanoutTimelineService.removeWithPipeline('localTimeline', renote.id, redisPipeline);
+				this.fanoutTimelineService.removeWithPipeline('vmimiRelayTimeline', renote.id, redisPipeline);
 			}
 			await redisPipeline.exec();
 
