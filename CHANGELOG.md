@@ -1,5 +1,11 @@
-## 2026.5.4-kinel.2
+## 2026.5.4-kinel.3
 
+### Client
+- Fix: デッキUIのアンテナカラムのノートにおいて「このアンテナから削除」が表示されない問題を修正
+  (Cherry-picked from https://github.com/misskey-dev/misskey/pull/17553)
+
+
+## 2026.5.4-kinel.2
 
 ### General
 - Feat: ノート検索で投稿日時の期間を条件に加えられるように
@@ -13,6 +19,7 @@
 ### Server
 - Fix: フォロワー限定投稿を指名投稿で引用した際に、引用した投稿の公開範囲が意図せず変更される問題を修正
   (Cherry-picked from https://github.com/misskey-dev/misskey/pull/15961)
+
 
 ## 2026.5.4-kinel.1
 
