@@ -323,6 +323,12 @@ useGlobalEvent('noteRemovedFromAntenna', (antennaId, noteId) => {
 	}
 });
 
+useGlobalEvent('noteRemovedFromAntenna', (antennaId, noteId) => {
+	if (props.src === 'antenna' && props.antenna === antennaId) {
+		paginator.removeItem(noteId);
+	}
+});
+
 function releaseQueue() {
 	paginator.releaseQueue();
 	scrollToTop(rootEl.value!);
