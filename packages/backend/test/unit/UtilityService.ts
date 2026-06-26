@@ -5,6 +5,7 @@
 
 import * as assert from 'assert';
 import { Test } from '@nestjs/testing';
+import { beforeAll, describe, test } from 'vitest';
 
 import { CoreModule } from '@/core/CoreModule.js';
 import { UtilityService } from '@/core/UtilityService.js';
