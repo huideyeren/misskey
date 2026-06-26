@@ -14,8 +14,9 @@ SPDX-License-Identifier: AGPL-3.0-only
 </template>
 
 <script lang="ts" setup>
-import { onMounted, ref, useTemplateRef, watch, defineAsyncComponent } from 'vue';
+import { onMounted, ref, useTemplateRef, watch, defineAsyncComponent, provide } from 'vue';
 import XColumn from './column.vue';
+import type * as Misskey from 'misskey-js';
 import type { entities as MisskeyEntities } from 'misskey-js';
 import type { Column } from '@/deck.js';
 import type { MenuItem } from '@/types/menu.js';
@@ -27,6 +28,7 @@ import { misskeyApi } from '@/utility/misskey-api.js';
 import { i18n } from '@/i18n.js';
 import { antennasCache } from '@/cache.js';
 import { soundSettingsButton } from '@/ui/deck/tl-note-notification.js';
+import { openPastTimelineWindow } from '@/utility/past-timeline-window.js';
 
 const props = defineProps<{
 	column: Column;
@@ -35,6 +37,14 @@ const props = defineProps<{
 
 const timeline = useTemplateRef('timeline');
 const soundSetting = ref<SoundStore>(props.column.soundSetting ?? { type: null, volume: 1 });
+const antenna = ref<Misskey.entities.Antenna | null>(null);
+
+provide('currentAntenna', antenna);
+
+watch(() => props.column.antennaId, async (antennaId) => {
+	if (antennaId == null) return;
+	antenna.value = await misskeyApi('antennas/show', { antennaId });
+}, { immediate: true });
 
 onMounted(() => {
 	if (props.column.antennaId == null) {
@@ -84,16 +94,27 @@ async function setAntenna() {
 		return;
 	}
 
-	const antenna = antennas.find(x => x.id === antennaIdOrOperation)!;
+	const selectedAntenna = antennas.find(x => x.id === antennaIdOrOperation);
+	if (selectedAntenna == null) return;
 
 	updateColumn(props.column.id, {
-		antennaId: antenna.id,
-		timelineNameCache: antenna.name,
+		antennaId: selectedAntenna.id,
+		timelineNameCache: selectedAntenna.name,
 	});
 }
 
 function editAntenna() {
-	os.pageWindow('my/antennas/' + props.column.antennaId);
+	os.pageWindow('/my/antennas/' + props.column.antennaId);
+}
+
+function openPastTimeline() {
+	if (props.column.antennaId == null) return;
+
+	void openPastTimelineWindow({
+		src: 'antenna',
+		title: props.column.name || props.column.timelineNameCache || i18n.ts._deck._columns.antenna,
+		antenna: props.column.antennaId,
+	});
 }
 
 const menu: MenuItem[] = [
@@ -111,6 +132,11 @@ const menu: MenuItem[] = [
 		icon: 'ti ti-bell',
 		text: i18n.ts._deck.newNoteNotificationSettings,
 		action: () => soundSettingsButton(soundSetting),
+	},
+	{
+		icon: 'ti ti-calendar-time',
+		text: i18n.ts.jumpToSpecifiedDate,
+		action: openPastTimeline,
 	},
 ];
 
