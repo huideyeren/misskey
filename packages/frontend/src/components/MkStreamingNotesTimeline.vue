@@ -19,8 +19,12 @@ SPDX-License-Identifier: AGPL-3.0-only
 			<div :class="$style.newBg2"></div>
 			<button class="_button" :class="$style.newButton" @click="releaseQueue()"><i class="ti ti-circle-arrow-up"></i> {{ i18n.ts.newNote }}</button>
 		</div>
+		<button v-show="fixedPastTimeline && paginator.canFetchNewer.value && paginator.items.value.length > 0" key="_more_newer_" :disabled="paginator.fetchingNewer.value" class="_button" :class="$style.more" @click="fetchNewerPreservingScroll()">
+			<div v-if="!paginator.fetchingNewer.value">{{ i18n.ts.loadMore }}</div>
+			<MkLoading v-else :inline="true"/>
+		</button>
 		<component
-			:is="prefer.s.animation ? TransitionGroup : 'div'"
+			:is="useNoteTransition ? TransitionGroup : 'div'"
 			:class="$style.notes"
 			:enterActiveClass="$style.transition_x_enterActive"
 			:leaveActiveClass="$style.transition_x_leaveActive"
@@ -56,7 +60,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 </template>
 
 <script lang="ts" setup>
-import { computed, watch, onUnmounted, provide, useTemplateRef, TransitionGroup, onMounted, shallowRef, ref, markRaw } from 'vue';
+import { computed, watch, onUnmounted, provide, useTemplateRef, TransitionGroup, onMounted, shallowRef, ref, markRaw, nextTick } from 'vue';
 import * as Misskey from 'misskey-js';
 import { useInterval } from '@@/js/use-interval.js';
 import { useDocumentVisibility } from '@@/js/use-document-visibility.js';
@@ -74,6 +78,7 @@ import { store } from '@/store.js';
 import MkNote from '@/components/MkNote.vue';
 import MkButton from '@/components/MkButton.vue';
 import { i18n } from '@/i18n.js';
+import { DI } from '@/di.js';
 import { globalEvents, useGlobalEvent } from '@/events.js';
 import { isSeparatorNeeded, getSeparatorInfo } from '@/utility/timeline-date-separate.js';
 import { Paginator } from '@/utility/paginator.js';
@@ -91,6 +96,8 @@ const props = withDefaults(defineProps<{
 	withSensitive?: boolean;
 	withLocalOnly?: boolean;
 	onlyFiles?: boolean;
+	initialDate?: number | null;
+	disableRealtime?: boolean;
 }>(), {
 	withRenotes: true,
 	withReplies: true,
@@ -99,11 +106,15 @@ const props = withDefaults(defineProps<{
 	withLocalOnly: true,
 	sound: false,
 	customSound: null,
+	initialDate: null,
+	disableRealtime: false,
 });
 
 provide('inTimeline', true);
 provide('tl_withSensitive', computed(() => props.withSensitive));
-provide('inChannel', computed(() => props.src === 'channel'));
+provide(DI.inChannel, computed(() => props.src === 'channel' ? props.channel ?? null : null));
+const fixedPastTimeline = computed(() => props.disableRealtime && props.initialDate != null);
+const useNoteTransition = computed(() => prefer.s.animation && !fixedPastTimeline.value);
 
 let paginator: IPaginator<Misskey.entities.Note>;
 
@@ -112,6 +123,7 @@ if (props.src === 'antenna') {
 		computedParams: computed(() => ({
 			antennaId: props.antenna!,
 		})),
+		initialDate: props.initialDate,
 		useShallowRef: true,
 	}));
 } else if (props.src === 'home') {
@@ -120,6 +132,7 @@ if (props.src === 'antenna') {
 			withRenotes: props.withRenotes,
 			withFiles: props.onlyFiles ? true : undefined,
 		})),
+		initialDate: props.initialDate,
 		useShallowRef: true,
 	}));
 } else if (props.src === 'local') {
@@ -129,6 +142,7 @@ if (props.src === 'antenna') {
 			withReplies: props.withReplies,
 			withFiles: props.onlyFiles ? true : undefined,
 		})),
+		initialDate: props.initialDate,
 		useShallowRef: true,
 	}));
 } else if (props.src === 'social') {
@@ -138,6 +152,7 @@ if (props.src === 'antenna') {
 			withReplies: props.withReplies,
 			withFiles: props.onlyFiles ? true : undefined,
 		})),
+		initialDate: props.initialDate,
 		useShallowRef: true,
 	}));
 } else if (props.src === 'global') {
@@ -146,6 +161,7 @@ if (props.src === 'antenna') {
 			withRenotes: props.withRenotes,
 			withFiles: props.onlyFiles ? true : undefined,
 		})),
+		initialDate: props.initialDate,
 		useShallowRef: true,
 	}));
 } else if (props.src === 'vmimi-relay') {
@@ -156,6 +172,7 @@ if (props.src === 'antenna') {
 			withFiles: props.onlyFiles ? true : undefined,
 			withLocalOnly: props.withLocalOnly,
 		})),
+		initialDate: props.initialDate,
 		useShallowRef: true,
 	}));
 } else if (props.src === 'vmimi-relay-social') {
@@ -166,10 +183,12 @@ if (props.src === 'antenna') {
 			withFiles: props.onlyFiles ? true : undefined,
 			withLocalOnly: props.withLocalOnly,
 		})),
+		initialDate: props.initialDate,
 		useShallowRef: true,
 	}));
 } else if (props.src === 'mentions') {
 	paginator = markRaw(new Paginator('notes/mentions', {
+		initialDate: props.initialDate,
 		useShallowRef: true,
 	}));
 } else if (props.src === 'directs') {
@@ -177,6 +196,7 @@ if (props.src === 'antenna') {
 		params: {
 			visibility: 'specified',
 		},
+		initialDate: props.initialDate,
 		useShallowRef: true,
 	}));
 } else if (props.src === 'list') {
@@ -186,6 +206,7 @@ if (props.src === 'antenna') {
 			withFiles: props.onlyFiles ? true : undefined,
 			listId: props.list!,
 		})),
+		initialDate: props.initialDate,
 		useShallowRef: true,
 	}));
 } else if (props.src === 'channel') {
@@ -193,6 +214,7 @@ if (props.src === 'antenna') {
 		computedParams: computed(() => ({
 			channelId: props.channel!,
 		})),
+		initialDate: props.initialDate,
 		useShallowRef: true,
 	}));
 } else if (props.src === 'role') {
@@ -200,6 +222,7 @@ if (props.src === 'antenna') {
 		computedParams: computed(() => ({
 			roleId: props.role!,
 		})),
+		initialDate: props.initialDate,
 		useShallowRef: true,
 	}));
 } else {
@@ -270,7 +293,7 @@ const POLLING_INTERVAL =
 	prefer.s.pollingInterval === 3 ? MIN_POLLING_INTERVAL :
 	MIN_POLLING_INTERVAL;
 
-if (!store.s.realtimeMode) {
+if (!props.disableRealtime && !store.s.realtimeMode) {
 	// TODO: 先頭のノートの作成日時が1日以上前であれば流速が遅いTLと見做してインターバルを通常より延ばす
 	useInterval(async () => {
 		paginator.fetchNewer({
@@ -288,13 +311,57 @@ if (!store.s.realtimeMode) {
 	});
 }
 
-useGlobalEvent('noteDeleted', (noteId) => {
-	paginator.removeItem(noteId);
+if (!props.disableRealtime) {
+	useGlobalEvent('noteDeleted', (noteId) => {
+		paginator.removeItem(noteId);
+	});
+}
+
+useGlobalEvent('noteRemovedFromAntenna', (antennaId, noteId) => {
+	if (props.src === 'antenna' && props.antenna === antennaId) {
+		paginator.removeItem(noteId);
+	}
+});
+
+useGlobalEvent('noteRemovedFromAntenna', (antennaId, noteId) => {
+	if (props.src === 'antenna' && props.antenna === antennaId) {
+		paginator.removeItem(noteId);
+	}
 });
 
 function releaseQueue() {
 	paginator.releaseQueue();
 	scrollToTop(rootEl.value!);
+}
+
+function captureScrollSnapshot(): { top: number; height: number; } | null {
+	if (rootEl.value == null) return null;
+
+	if (scrollContainer) {
+		return {
+			top: scrollContainer.scrollTop,
+			height: scrollContainer.scrollHeight,
+		};
+	}
+
+	return {
+		top: window.scrollY,
+		height: window.document.documentElement.scrollHeight,
+	};
+}
+
+async function fetchNewerPreservingScroll() {
+	const snapshot = captureScrollSnapshot();
+	await paginator.fetchNewer();
+	await nextTick();
+
+	if (snapshot == null) return;
+
+	if (scrollContainer) {
+		scrollContainer.scrollTop = snapshot.top + (scrollContainer.scrollHeight - snapshot.height);
+	} else {
+		window.scrollTo(window.scrollX, snapshot.top + (window.document.documentElement.scrollHeight - snapshot.height));
+	}
 }
 
 function prepend(note: Misskey.entities.Note & MisskeyEntity) {
@@ -319,7 +386,7 @@ function prepend(note: Misskey.entities.Note & MisskeyEntity) {
 	}
 }
 
-const stream = store.s.realtimeMode ? useStream() : null;
+const stream = !props.disableRealtime && store.s.realtimeMode ? useStream() : null;
 
 const connections = {
 	antenna: null as Misskey.IChannelConnection<Misskey.Channels['antenna']> | null,
@@ -429,12 +496,12 @@ function disconnectChannel() {
 	}
 }
 
-if (store.s.realtimeMode) {
+if (!props.disableRealtime && store.s.realtimeMode) {
 	connectChannel();
 }
 
 watch(() => [props.list, props.antenna, props.channel, props.role, props.withRenotes], () => {
-	if (store.s.realtimeMode) {
+	if (!props.disableRealtime && store.s.realtimeMode) {
 		disconnectChannel();
 		connectChannel();
 	}

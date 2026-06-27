@@ -19,7 +19,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 </template>
 
 <script lang="ts" setup>
-import { computed, watch, ref, useTemplateRef } from 'vue';
+import { computed, watch, ref, useTemplateRef, provide } from 'vue';
 import * as Misskey from 'misskey-js';
 import MkStreamingNotesTimeline from '@/components/MkStreamingNotesTimeline.vue';
 import * as os from '@/os.js';
@@ -27,6 +27,7 @@ import { misskeyApi } from '@/utility/misskey-api.js';
 import { definePage } from '@/page.js';
 import { i18n } from '@/i18n.js';
 import { useRouter } from '@/router.js';
+import { openPastTimelineWindow } from '@/utility/past-timeline-window.js';
 
 const router = useRouter();
 
@@ -37,11 +38,21 @@ const props = defineProps<{
 const antenna = ref<Misskey.entities.Antenna | null>(null);
 const tlEl = useTemplateRef('tlEl');
 
+provide('currentAntenna', antenna);
+
 function settings() {
 	router.push('/my/antennas/:antennaId', {
 		params: {
 			antennaId: props.antennaId,
 		},
+	});
+}
+
+function openPastTimeline() {
+	void openPastTimelineWindow({
+		src: 'antenna',
+		title: antenna.value?.name ?? i18n.ts.antennas,
+		antenna: props.antennaId,
 	});
 }
 
@@ -55,6 +66,10 @@ const headerActions = computed(() => antenna.value ? [{
 	icon: 'ti ti-settings',
 	text: i18n.ts.settings,
 	handler: settings,
+}, {
+	icon: 'ti ti-calendar-time',
+	text: i18n.ts.jumpToSpecifiedDate,
+	handler: openPastTimeline,
 }] : []);
 
 const headerTabs = computed(() => []);
