@@ -6,13 +6,16 @@
 process.env.NODE_ENV = 'test';
 
 import * as assert from 'assert';
-import { describe, beforeAll, test, expect } from 'vitest';
+import * as OTPAuth from 'otpauth';
+import { describe, beforeAll, test, expect, vi } from 'vitest';
 // node-fetch only supports it's own Blob yet
 // https://github.com/node-fetch/node-fetch/pull/1664
 import { Blob } from 'node-fetch';
 import { api, castAsError, initTestDb, post, role, signup, simpleGet, uploadFile } from '../utils.js';
 import type * as misskey from 'misskey-js';
 import { MiUser } from '@/models/_.js';
+
+const waitForPushToTlOptions = { timeout: 3000, interval: 25 };
 
 describe('Endpoints', () => {
 	let alice: misskey.entities.SignupResponse;
@@ -65,6 +68,59 @@ describe('Endpoints', () => {
 			});
 
 			assert.strictEqual(res.status, 400);
+		});
+	});
+
+	describe('admin/unset-mfa', () => {
+		test('管理者は一般利用者の設定済み MFA を解除できる', async () => {
+			const registerResponse = await api('i/2fa/register', {
+				password: 'test',
+			}, bob);
+			assert.strictEqual(registerResponse.status, 200);
+
+			const doneResponse = await api('i/2fa/done', {
+				token: OTPAuth.TOTP.generate({
+					secret: OTPAuth.Secret.fromBase32(registerResponse.body.secret),
+					digits: 6,
+				}),
+			}, bob);
+			assert.strictEqual(doneResponse.status, 200);
+
+			const beforeUnsetResponse = await api('i', {}, bob);
+			assert.strictEqual(beforeUnsetResponse.status, 200);
+			assert.strictEqual(beforeUnsetResponse.body.twoFactorEnabled, true);
+
+			const unsetResponse = await api('admin/unset-mfa', { userId: bob.id }, alice);
+			assert.strictEqual(unsetResponse.status, 204);
+
+			const afterUnsetResponse = await api('i', {}, bob);
+			assert.strictEqual(afterUnsetResponse.status, 200);
+			assert.strictEqual(afterUnsetResponse.body.twoFactorEnabled, false);
+		});
+
+		test('存在しない利用者の MFA は解除できない', async () => {
+			const res = await api('admin/unset-mfa', { userId: '9xxxxxxxxxxxxxxxxxxx' }, alice);
+			assert.strictEqual(res.status, 400);
+			assert.ok(res.body);
+			assert.strictEqual(castAsError(res.body as Record<string, unknown>).error.code, 'NO_SUCH_USER');
+		});
+
+		test('管理者以外は別の管理者の MFA を解除できない', async () => {
+			const moderatorRole = await role(alice, { isModerator: true, name: 'Unset MFA test moderator' });
+			await api('admin/roles/assign', { userId: carol.id, roleId: moderatorRole.id }, alice);
+
+			const res = await api('admin/unset-mfa', { userId: alice.id }, carol);
+			assert.strictEqual(res.status, 400);
+			assert.ok(res.body);
+			assert.strictEqual(castAsError(res.body as Record<string, unknown>).error.code, 'ACCESS_DENIED');
+		});
+	});
+
+	describe('stats', () => {
+		test('reactionsCount を返す', async () => {
+			const res = await api('stats', {});
+			assert.strictEqual(res.status, 200);
+			assert.strictEqual(typeof res.body.reactionsCount, 'number');
 		});
 	});
 
@@ -1140,12 +1196,14 @@ describe('Endpoints', () => {
 				visibility: 'followers',
 			});
 
-			const res = await api('notes/timeline', {}, dave);
+			await vi.waitFor(async () => {
+				const res = await api('notes/timeline', {}, dave);
 
-			assert.strictEqual(res.status, 200);
-			assert.strictEqual(Array.isArray(res.body), true);
-			assert.strictEqual(res.body.length, 1);
-			assert.strictEqual(res.body[0].id, carolPost.id);
+				assert.strictEqual(res.status, 200);
+				assert.strictEqual(Array.isArray(res.body), true);
+				assert.strictEqual(res.body.length, 1);
+				assert.strictEqual(res.body[0].id, carolPost.id);
+			}, waitForPushToTlOptions);
 		});
 	});
 
