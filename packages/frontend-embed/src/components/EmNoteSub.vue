@@ -4,7 +4,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 -->
 
 <template>
-<div :class="[$style.root, { [$style.children]: depth > 1 }]">
+<div v-if="note" :class="[$style.root, { [$style.children]: depth > 1 }]">
 	<div :class="$style.main">
 		<div v-if="note?.channel" :class="$style.colorBar" :style="{ background: note.channel.color }"></div>
 		<EmAvatar v-if="note && !note.deletedAt" :class="$style.avatar" :user="note.user" link preview/>
@@ -29,6 +29,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 		<EmA class="_link" :to="notePage(note)">{{ i18n.ts.continueThread }} <i class="ti ti-chevron-double-right"></i></EmA>
 	</div>
 </div>
+<div v-else :class="$style.root">{{ i18n.ts.deletedNote }}</div>
 </template>
 
 <script lang="ts" setup>
@@ -56,7 +57,7 @@ const props = withDefaults(defineProps<{
 const showContent = ref(false);
 const replies = ref<Misskey.entities.Note[]>([]);
 
-if (props.detail) {
+if (props.detail && props.note != null) {
 	misskeyApi('notes/children', {
 		noteId: props.note.id,
 		limit: 5,
