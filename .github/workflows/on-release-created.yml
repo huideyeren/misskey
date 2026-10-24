@@ -9,6 +9,8 @@ on:
 jobs:
   publish-misskey-js:
     name: Publish misskey-js
+    # Fork releases publish Docker images; only the canonical repository publishes the SDK.
+    if: github.repository == 'misskey-dev/misskey'
     runs-on: ubuntu-latest
 
     permissions:
